@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Login - AudioArticles</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .brand-color { color: #E82400; }
+        .brand-bg { background-color: #E82400; }
+    </style>
+</head>
+<body class="bg-gray-50 min-h-screen flex items-center justify-center">
+    <div class="max-w-md w-full space-y-8 p-8">
+        <div class="text-center">
+            <div class="flex items-center justify-center space-x-2 mb-8">
+                <i class="fas fa-headphones brand-color text-3xl"></i>
+                <span class="font-bold text-2xl text-gray-800">AudioArticles</span>
+            </div>
+            <h2 class="text-3xl font-bold text-gray-900">Admin Login</h2>
+            <p class="mt-2 text-gray-600">Access the admin dashboard</p>
+        </div>
+
+        <form id="loginForm" class="mt-8 space-y-6 bg-white p-8 rounded-lg shadow-md">
+            <!-- Remove method="GET" and let JavaScript handle it -->
+            <div>
+                <label for="username" class="block text-sm font-medium text-gray-700 mb-2">Username</label>
+                <input id="username" name="username" type="text" required 
+                       class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-red-500 focus:border-red-500"
+                       placeholder="Enter admin username">
+            </div>
+            <div>
+                <label for="password" class="block text-sm font-medium text-gray-700 mb-2">Password</label>
+                <input id="password" name="password" type="password" required 
+                       class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-red-500 focus:border-red-500"
+                       placeholder="Enter admin password">
+            </div>
+            <div>
+                <button type="submit" 
+                        class="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white brand-bg hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500">
+                    Sign in
+                </button>
+            </div>
+            <div id="errorMessage" class="hidden bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded"></div>
+        </form>
+    </div>
+
+    <script>
+        class AdminLogin {
+            constructor() {
+                this.apiBase = 'http://localhost:5000/api';
+                this.init();
+            }
+
+            init() {
+                this.setupEventListeners();
+                this.checkExistingAuth();
+            }
+
+            setupEventListeners() {
+                const loginForm = document.getElementById('loginForm');
+                if (loginForm) {
+                    // Prevent default form submission (which shows password in URL)
+                    loginForm.addEventListener('submit', (e) => {
+                        e.preventDefault(); // This stops the form from submitting traditionally
+                        this.handleLogin();
+                    });
+                }
+            }
+
+            async checkExistingAuth() {
+                const token = localStorage.getItem('adminToken');
+                if (token) {
+                    try {
+                        const response = await fetch(`${this.apiBase}/auth/verify`, {
+                            headers: {
+                                'Authorization': `Bearer ${token}`
+                            }
+                        });
+
+                        if (response.ok) {
+                            window.location.href = '/admin';
+                        }
+                    } catch (error) {
+                        localStorage.removeItem('adminToken');
+                    }
+                }
+            }
+
+            async handleLogin() {
+                const username = document.getElementById('username').value;
+                const password = document.getElementById('password').value;
+                const errorDiv = document.getElementById('errorMessage');
+
+                // Show loading state
+                const submitBtn = document.querySelector('button[type="submit"]');
+                const originalText = submitBtn.textContent;
+                submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Signing in...';
+                submitBtn.disabled = true;
+
+                try {
+                    // Use POST request with JSON body (secure)
+                    const response = await fetch(`${this.apiBase}/auth/login`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({ username, password }) // Secure - no URL params
+                    });
+
+                    const data = await response.json();
+
+                    if (response.ok) {
+                        // Store token and redirect
+                        localStorage.setItem('adminToken', data.token);
+                        window.location.href = '/admin'; // Clean redirect
+                    } else {
+                        this.showError(errorDiv, data.error || 'Login failed');
+                    }
+                } catch (error) {
+                    this.showError(errorDiv, 'Network error. Please try again.');
+                } finally {
+                    submitBtn.textContent = originalText;
+                    submitBtn.disabled = false;
+                }
+            }
+
+            showError(errorDiv, message) {
+                errorDiv.textContent = message;
+                errorDiv.classList.remove('hidden');
+                setTimeout(() => {
+                    errorDiv.classList.add('hidden');
+                }, 5000);
+            }
+        }
+
+        // Initialize login
+        document.addEventListener('DOMContentLoaded', () => {
+            new AdminLogin();
+        });
+    </script>
+</body>
+</html>

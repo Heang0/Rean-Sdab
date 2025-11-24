@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manage Categories - AudioArticles</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* Modal animations */
+#editCategoryModal {
+    transition: opacity 0.3s ease;
+}
+
+#editCategoryModal:not(.hidden) {
+    display: block !important;
+}
+        .brand-color { color: #E82400; }
+        .brand-bg { background-color: #E82400; }
+    </style>
+</head>
+<body class="bg-gray-100">
+    <!-- Admin Header -->
+    <header class="bg-white shadow-sm">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <div class="flex items-center space-x-2">
+                    <i class="fas fa-headphones brand-color text-2xl"></i>
+                    <span class="font-bold text-xl text-gray-800">AudioArticles Admin</span>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <span class="text-gray-600">Welcome, <span id="currentUser" class="font-semibold">Admin</span></span>
+                    <button id="logoutBtn" class="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition-colors">
+                        <i class="fas fa-sign-out-alt mr-2"></i>Logout
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Admin Navigation -->
+    <nav class="brand-bg text-white">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex space-x-8">
+                <a href="/admin" class="py-4 px-2 hover:bg-red-700 transition-colors">Dashboard</a>
+                <a href="/upload" class="py-4 px-2 hover:bg-red-700 transition-colors">Upload Article</a>
+                <a href="/manage-categories" class="py-4 px-2 border-b-2 border-white font-semibold">Manage Categories</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Categories Management -->
+    <main class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div class="bg-white rounded-lg shadow-lg p-6">
+            <h1 class="text-2xl font-bold text-gray-800 mb-6">Manage Categories</h1>
+            
+            <!-- Add Category Form -->
+            <div class="mb-8 p-4 bg-gray-50 rounded-lg">
+                <h2 class="text-lg font-semibold text-gray-800 mb-4">Add New Category</h2>
+                <form id="categoryForm" method="POST" action="/api/categories" class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Category Name *</label>
+                        <input type="text" id="categoryName" name="name" required class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-red-500 focus:border-red-500" placeholder="Enter category name">
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Description</label>
+                        <input type="text" id="categoryDescription" name="description" class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-red-500 focus:border-red-500" placeholder="Enter category description">
+                    </div>
+                    
+                    <div class="flex items-end">
+                        <button type="submit" class="w-full brand-bg text-white px-4 py-2 rounded-md hover:bg-red-700 transition-colors">Add Category</button>
+                    </div>
+                </form>
+            </div>
+                <!-- Edit Category Modal -->
+<div id="editCategoryModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full hidden z-50">
+    <div class="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
+        <div class="mt-3">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-lg font-medium text-gray-900">Edit Category</h3>
+                <button id="closeEditModal" class="text-gray-400 hover:text-gray-600">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            
+            <form id="editCategoryForm" class="space-y-4">
+                <input type="hidden" id="editCategoryId">
+                
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Category Name *</label>
+                    <input type="text" id="editCategoryName" required 
+                           class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-red-500 focus:border-red-500">
+                </div>
+                
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Description</label>
+                    <textarea id="editCategoryDescription" rows="3"
+                              class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-red-500 focus:border-red-500"></textarea>
+                </div>
+                
+                <div class="flex space-x-3 pt-4">
+                    <button type="button" id="cancelEdit" 
+                            class="flex-1 px-4 py-2 bg-gray-300 text-gray-700 rounded-md hover:bg-gray-400 transition-colors">
+                        Cancel
+                    </button>
+                    <button type="submit" 
+                            class="flex-1 px-4 py-2 brand-bg text-white rounded-md hover:bg-red-700 transition-colors">
+                        Update Category
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+            <!-- Categories List -->
+            <div>
+                <h2 class="text-lg font-semibold text-gray-800 mb-4">Existing Categories</h2>
+                <div id="categoriesList" class="space-y-3">
+                    <div class="text-center py-8 text-gray-500">
+                        <i class="fas fa-folder-open text-4xl mb-3"></i>
+                        <p>No categories found. Add your first category above.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script src="assets/js/admin.js"></script>
+</body>
+<script>
+// Direct button test
+setTimeout(() => {
+    const button = document.querySelector('#categoryForm button');
+    console.log('Direct button query:', button);
+    if (button) {
+        button.onclick = function() {
+            console.log('DIRECT ONCLICK FIRED!');
+            return false;
+        };
+    }
+}, 1000);
+</script>
+</html>

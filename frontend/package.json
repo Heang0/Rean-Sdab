@@ -1,0 +1,12 @@
+{
+  "name": "audio-articles-frontend",
+  "version": "1.0.0",
+  "description": "Frontend for audio articles platform",
+  "scripts": {
+    "dev": "live-server --port=3000",
+    "build": "echo 'Build process would go here'"
+  },
+  "devDependencies": {
+    "live-server": "^1.2.2"
+  }
+}

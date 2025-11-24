@@ -1,0 +1,208 @@
+/* styles.css */
+
+/* Force font on all elements */
+* {
+    font-family: 'Odor Mean Chey', serif !important;
+}
+
+body { 
+    font-family: 'Odor Mean Chey', serif !important;
+    background-color: #f9fafb;
+}
+
+.brand-color { 
+    color: #E82400; 
+}
+
+.brand-bg { 
+    background-color: #E82400; 
+}
+
+.brand-border { 
+    border-color: #E82400; 
+}
+
+.page { 
+    display: none; 
+}
+
+.page.active { 
+    display: block; 
+}
+
+/* FIXED Mobile Menu Styles - Completely override Tailwind */
+#mobileMenu {
+    position: fixed !important;
+    top: 0 !important;
+    left: -100% !important;
+    width: 280px !important;
+    height: 100vh !important;
+    background: white !important;
+    box-shadow: 2px 0 10px rgba(0,0,0,0.1) !important;
+    transition: left 0.3s ease-in-out !important;
+    z-index: 1000 !important;
+    display: block !important;
+}
+
+#mobileMenu.open {
+    left: 0 !important;
+}
+
+/* Mobile menu overlay */
+#mobileOverlay {
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    width: 100% !important;
+    height: 100% !important;
+    background: rgba(0,0,0,0.5) !important;
+    z-index: 999 !important;
+    display: none !important;
+}
+
+#mobileOverlay.active {
+    display: block !important;
+}
+
+/* Loading spinner */
+.loading-spinner {
+    border: 3px solid #f3f3f3;
+    border-top: 3px solid #E82400;
+    border-radius: 50%;
+    width: 30px;
+    height: 30px;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* Smooth transitions */
+.transition-all {
+    transition: all 0.3s ease;
+}
+
+/* Article card hover effects */
+.article-card {
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.article-card:hover {
+    transform: translateY(-5px);
+}
+
+/* Custom scrollbar for categories */
+.categories-scroll::-webkit-scrollbar {
+    height: 4px;
+}
+
+.categories-scroll::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 10px;
+}
+
+.categories-scroll::-webkit-scrollbar-thumb {
+    background: #c1c1c1;
+    border-radius: 10px;
+}
+
+/* Audio player styles */
+.audio-progress {
+    -webkit-appearance: none;
+    appearance: none;
+    height: 6px;
+    background: #e5e7eb;
+    border-radius: 10px;
+    outline: none;
+}
+
+.audio-progress::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: #E82400;
+    cursor: pointer;
+}
+
+.audio-progress::-moz-range-thumb {
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: #E82400;
+    cursor: pointer;
+    border: none;
+}
+
+/* Audio player fixed positioning */
+.audio-player-fixed {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 50;
+    backdrop-filter: blur(10px);
+}
+
+/* Category chip animations */
+.category-chip {
+    transition: all 0.3s ease;
+}
+
+.category-chip.active {
+    background-color: #E82400;
+    color: white;
+}
+
+/* Text utilities */
+.line-clamp-2 {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.line-clamp-3 {
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+/* Hide scrollbar but keep functionality */
+.scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+    display: none;
+}
+/* Add to your existing CSS */
+#imageModal {
+    backdrop-filter: blur(5px);
+}
+
+.article-card {
+    cursor: pointer;
+}
+
+.article-card img {
+    transition: transform 0.3s ease;
+}
+
+.article-card:hover img {
+    transform: scale(1.05);
+}
+/* Ensure mobile menu is hidden on desktop */
+@media (min-width: 768px) {
+    #mobileMenu {
+        display: none !important;
+    }
+    #mobileOverlay {
+        display: none !important;
+    }
+}

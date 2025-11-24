@@ -1,0 +1,20 @@
+frontend/
+├── index.html          (Homepage - Khmer)
+├── categories.html     (Categories page - Khmer)
+├── article.html        (Article page - Khmer)
+├── login.html          (Admin login - English)
+├── admin.html          (Admin dashboard - English)
+├── upload.html         (Upload article - English)
+├── manage-categories.html (Manage categories - English)
+├── 📁 assets/
+│   ├── 📁 js/
+│   │   ├── main.js
+│   │   ├── audioPlayer.js
+│   │   ├── categoriesScroll.js
+│   │   └── admin.js
+│   ├── 📁 css/
+│   │   └── styles.css
+│   └── 📁 images/
+└── 📁 components/
+    ├── header.html
+    └── footer.html

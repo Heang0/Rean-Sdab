@@ -1,0 +1,668 @@
+<!DOCTYPE html>
+<html lang="km">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AudioArticles - សម្រាប់អ្នកស្ដាប់</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Preconnect for Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Odor+Mean+Chey&display=swap" rel="stylesheet">
+    <style>
+        /* Custom CSS for better responsiveness */
+        body { 
+            font-family: 'Odor Mean Chey', serif !important; 
+        }
+            /* === PROFESSIONAL NUMBER STYLING FOR INDEX PAGE === */
+    .professional-numbers {
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+        font-variant-numeric: tabular-nums;
+        font-feature-settings: "tnum";
+        font-weight: 500;
+    }
+        /* Temporary debug CSS for hamburger */
+    #hamburger {
+        cursor: pointer !important;
+        z-index: 1000 !important;
+        position: relative !important;
+        background: rgba(255, 0, 0, 0.1) !important; /* Red background to see it */
+        padding: 12px !important;
+    }
+    
+    /* Make sure mobile menu has high z-index */
+    #mobileMenu {
+        z-index: 9999 !important;
+    }
+    
+    .mobile-overlay {
+        z-index: 9998 !important;
+    }
+        /* Brand colors */
+        .brand-color {
+            color: #dc2626;
+        }
+        
+        .brand-bg {
+            background-color: #dc2626;
+        }
+        
+        .brand-hover:hover {
+            color: #dc2626;
+        }
+        
+        /* Page transitions */
+        .page {
+            display: none;
+        }
+        
+        .page.active {
+            display: block;
+        }
+        
+        /* Mobile menu styles - FIXED */
+        #mobileMenu {
+            position: fixed;
+            top: 0;
+            right: -100%;
+            width: 80%;
+            max-width: 300px;
+            height: 100vh;
+            background-color: white;
+            z-index: 60;
+            transition: right 0.3s ease;
+            box-shadow: -2px 0 10px rgba(0, 0, 0, 0.1);
+            overflow-y: auto;
+        }
+        
+        #mobileMenu.open {
+            right: 0;
+        }
+        
+        .mobile-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 55;
+            display: none;
+        }
+        
+        .mobile-overlay.active {
+            display: block;
+        }
+        
+        /* Categories scroll */
+        .categories-scroll {
+            scrollbar-width: none; /* Firefox */
+            -ms-overflow-style: none; /* IE and Edge */
+        }
+        
+        .categories-scroll::-webkit-scrollbar {
+            display: none; /* Chrome, Safari and Opera */
+        }
+        
+        /* Loading spinner */
+        .loading-spinner {
+            border: 4px solid rgba(0, 0, 0, 0.1);
+            border-left-color: #dc2626;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        /* Line clamp utility */
+        .line-clamp-2 {
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+        
+        .line-clamp-3 {
+            display: -webkit-box;
+            -webkit-line-clamp: 3;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+        
+        /* Article card hover effect */
+        .article-card {
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        
+        .article-card:hover {
+            transform: translateY(-5px);
+        }
+        
+        /* Responsive text sizes */
+        @media (max-width: 640px) {
+            .text-responsive-xl {
+                font-size: 1.5rem;
+            }
+            
+            .text-responsive-lg {
+                font-size: 1.25rem;
+            }
+            
+            .text-responsive-base {
+                font-size: 0.875rem;
+            }
+        }
+
+
+    /* Contact numbers only */
+    .contact-number {
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif !important;
+        font-variant-numeric: tabular-nums !important;
+    }
+
+    /* Copyright year only */
+    .copyright-year {
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif !important;
+        font-variant-numeric: tabular-nums !important;
+    }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <!-- Header -->
+    <header class="bg-white shadow-sm sticky top-0 z-50">
+        <nav class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <!-- Logo -->
+                <div class="flex items-center">
+                    <a href="/" class="flex items-center space-x-2" onclick="showPage('home'); return false;">
+                        <i class="fas fa-headphones brand-color text-2xl"></i>
+                        <span class="font-bold text-xl text-gray-800">AudioArticles</span>
+                    </a>
+                </div>
+
+                <!-- Desktop Navigation -->
+                <div class="hidden md:flex items-center space-x-8">
+                    <a href="#" class="text-gray-600 hover:brand-color transition-colors font-medium" onclick="showPage('home'); return false;">ទំព័រដើម</a>
+                    <a href="#" class="text-gray-600 hover:brand-color transition-colors font-medium" onclick="showPage('categories'); return false;">ប្រភេទ</a>
+                    <a href="#" class="text-gray-600 hover:brand-color transition-colors font-medium" onclick="showPage('about'); return false;">អំពីយើង</a>
+                    <a href="#" class="text-gray-600 hover:brand-color transition-colors font-medium" onclick="showPage('contact'); return false;">ទំនាក់ទំនង</a>
+                </div>
+
+                <!-- Mobile menu button -->
+                <div class="md:hidden">
+                    <button id="hamburger" class="text-gray-600 hover:brand-color transition-colors">
+                        <i class="fas fa-bars text-xl"></i>
+                    </button>
+                </div>
+            </div>
+        </nav>
+    </header>
+    
+    <!-- Mobile Menu - MOVED OUTSIDE HEADER -->
+    <div id="mobileMenu">
+        <div class="p-4 border-b">
+            <div class="flex items-center justify-between">
+                <span class="font-bold text-lg">ម៉ឺនុយ</span>
+                <button id="closeMobileMenu" class="text-gray-600">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+        </div>
+        <div class="p-4 space-y-4">
+            <a href="#" class="block text-gray-600 hover:brand-color transition-colors font-medium" onclick="showPage('home'); closeMobileMenu(); return false;">ទំព័រដើម</a>
+            <a href="#" class="block text-gray-600 hover:brand-color transition-colors font-medium" onclick="showPage('categories'); closeMobileMenu(); return false;">ប្រភេទ</a>
+            <a href="#" class="block text-gray-600 hover:brand-color transition-colors font-medium" onclick="showPage('about'); closeMobileMenu(); return false;">អំពីយើង</a>
+            <a href="#" class="block text-gray-600 hover:brand-color transition-colors font-medium" onclick="showPage('contact'); closeMobileMenu(); return false;">ទំនាក់ទំនង</a>
+        </div>
+    </div>
+    
+    <!-- Mobile Overlay -->
+    <div id="mobileOverlay" class="mobile-overlay" onclick="closeMobileMenu()"></div>
+
+    <!-- ===== HOME PAGE ===== -->
+    <div id="home-page" class="page active">
+        <!-- Hero Section -->
+        <section class="bg-gradient-to-r from-red-600 to-red-800 text-white py-12 md:py-24">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="text-center">
+                    <h1 class="text-2xl md:text-5xl lg:text-6xl font-bold mb-4 md:mb-6 text-responsive-xl">ស្ដាប់ចំណេះដឹង</h1>
+                    <p class="text-base md:text-xl lg:text-2xl mb-6 md:mb-8 opacity-90 max-w-3xl mx-auto text-responsive-base">
+                        រកឃើញអត្ថបទសម្រាប់ស្ដាប់លើប្រធានបទសំខាន់ៗ នៅពេលដែលអ្នកចង់
+                    </p>
+                    <div class="max-w-2xl mx-auto">
+                        <div class="relative">
+                            <input type="text" 
+                                   id="searchInput"
+                                   placeholder="ស្វែងរកអត្ថបទ, ប្រភេទ, ប្រធានបទ..."
+                                   class="w-full px-4 md:px-6 py-3 md:py-4 rounded-full text-gray-800 focus:outline-none focus:ring-4 focus:ring-red-300 text-sm md:text-base">
+                            <button class="absolute right-2 top-1/2 transform -translate-y-1/2 brand-bg text-white p-2 md:p-3 rounded-full hover:bg-red-700 transition-colors">
+                                <i class="fas fa-search text-sm md:text-base"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Categories Section -->
+        <section class="py-6 md:py-8 bg-white border-b">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="flex items-center justify-between mb-4">
+                    <h2 class="text-xl md:text-2xl font-bold text-gray-800 text-responsive-lg">ប្រភេទអត្ថបទ</h2>
+                    <div class="flex space-x-2">
+                        <button id="scrollLeft" class="p-2 text-gray-500 hover:brand-color transition-colors opacity-0 invisible">
+                            <i class="fas fa-chevron-left"></i>
+                        </button>
+                        <button id="scrollRight" class="p-2 text-gray-500 hover:brand-color transition-colors">
+                            <i class="fas fa-chevron-right"></i>
+                        </button>
+                    </div>
+                </div>
+                
+                <div id="categoriesContainer" class="categories-scroll flex space-x-3 overflow-x-auto pb-4">
+                    <!-- Categories will be loaded dynamically -->
+                    
+                </div>
+            </div>
+        </section>
+
+             
+        <!-- Featured Articles -->
+            <section class="py-8 md:py-12">
+                <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                    <h2 class="text-2xl md:text-3xl font-bold text-gray-800 mb-6 md:mb-8 text-responsive-lg">អត្ថបទពិសេស</h2>
+                    
+                    <!-- Articles Container -->
+                    <div id="articlesContainer" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-6">
+                        <!-- Articles will be loaded dynamically -->
+                        <div class="text-center py-8">
+                            <div class="loading-spinner mx-auto"></div>
+                            <p class="text-gray-500 mt-4">កំពុងផ្ទុកអត្ថបទ...</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+    </div>
+
+    <!-- ===== CATEGORIES PAGE ===== -->
+    <div id="categories-page" class="page">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 md:py-8">
+            <div class="text-center mb-8 md:mb-12">
+                <h1 class="text-2xl md:text-4xl font-bold text-gray-800 mb-3 md:mb-4 text-responsive-xl">ប្រភេទអត្ថបទ</h1>
+                <p class="text-base md:text-xl text-gray-600 text-responsive-base">រុករកបណ្ណាល័យអត្ថបទសម្រាប់ស្ដាប់តាមប្រភេទ</p>
+            </div>
+
+            <div id="categoriesGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-6">
+                <!-- Categories will be loaded here -->
+            </div>
+
+            <!-- Category Articles -->
+            <div id="categoryContent" class="hidden mt-8 md:mt-12">
+                <div class="flex items-center justify-between mb-4 md:mb-6">
+                    <h2 id="categoryTitle" class="text-xl md:text-2xl font-bold text-gray-800 text-responsive-lg"></h2>
+                    <button onclick="showPage('categories')" class="text-blue-500 hover:text-blue-600 font-semibold flex items-center space-x-2 text-sm md:text-base">
+                        <i class="fas fa-arrow-left"></i>
+                        <span>ត្រឡប់ទៅប្រភេទ</span>
+                    </button>
+                </div>
+                <div id="categoryArticles" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
+                    <!-- Category articles will be loaded here -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== ABOUT PAGE ===== -->
+    <div id="about-page" class="page">
+        <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12">
+            <div class="bg-white rounded-lg shadow-lg overflow-hidden">
+                <div class="p-6 md:p-8">
+                    <h1 class="text-2xl md:text-3xl font-bold text-gray-800 mb-6 text-center text-responsive-xl">អំពី AudioArticles</h1>
+                    
+                    <div class="prose max-w-none">
+                        <div class="text-center mb-8">
+                            <i class="fas fa-headphones brand-color text-5xl md:text-6xl mb-4"></i>
+                            <p class="text-lg md:text-xl text-gray-600 mb-6 text-responsive-base">
+                                វេទិកាសម្រាប់ចែករំលែកចំណេះដឹងតាមរយៈសំលេង
+                            </p>
+                        </div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8 mb-8">
+                            <div class="bg-gray-50 p-4 md:p-6 rounded-lg">
+                                <i class="fas fa-bullseye brand-color text-2xl mb-3"></i>
+                                <h3 class="font-semibold text-lg mb-2 text-responsive-lg">ចក្ខុវិស័យយើង</h3>
+                                <p class="text-gray-600 text-responsive-base">ធ្វើឱ្យចំណេះដឹងអាចចូលដល់បានតាមរយៈសំលេង សម្រាប់អ្នកស្ដាប់ទាំងអស់</p>
+                            </div>
+                            
+                            <div class="bg-gray-50 p-4 md:p-6 rounded-lg">
+                                <i class="fas fa-rocket brand-color text-2xl mb-3"></i>
+                                <h3 class="font-semibold text-lg mb-2 text-responsive-lg">បេសកកម្មយើង</h3>
+                                <p class="text-gray-600 text-responsive-base">បង្កើតបណ្ណាល័យអត្ថបទសម្រាប់ស្ដាប់ដ៏ធំធេង និងមានគុណភាពខ្ពស់</p>
+                            </div>
+                        </div>
+
+                        <div class="bg-red-50 border border-red-200 rounded-lg p-6">
+                            <h3 class="font-semibold text-xl mb-4 text-center text-responsive-lg">ហេតុអ្វីត្រូវស្ដាប់អត្ថបទ?</h3>
+                            <ul class="space-y-3 text-gray-700 text-responsive-base">
+                                <li class="flex items-start space-x-3">
+                                    <i class="fas fa-check text-green-500 mt-1"></i>
+                                    <span>អាចស្ដាប់បាននៅពេលធ្វើការងារផ្សេងៗ</span>
+                                </li>
+                                <li class="flex items-start space-x-3">
+                                    <i class="fas fa-check text-green-500 mt-1"></i>
+                                    <span>សារៈសំខាន់សម្រាប់អ្នកដែលមានពេលវេលាតិច</span>
+                                </li>
+                                <li class="flex items-start space-x-3">
+                                    <i class="fas fa-check text-green-500 mt-1"></i>
+                                    <span>អាចរៀនបានពីអ្នកជំនាញនៅក្នុងវិស័យផ្សេងៗ</span>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== CONTACT PAGE ===== -->
+    <div id="contact-page" class="page">
+        <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12">
+            <div class="bg-white rounded-lg shadow-lg overflow-hidden">
+                <div class="p-6 md:p-8">
+                    <h1 class="text-2xl md:text-3xl font-bold text-gray-800 mb-6 text-center text-responsive-xl">ទំនាក់ទំនង</h1>
+                    
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                        <!-- Contact Information -->
+                        <div>
+                            <h3 class="font-semibold text-xl mb-4 text-responsive-lg">ព័ត៌មានទំនាក់ទំនង</h3>
+                            <div class="space-y-4">
+                                <div class="flex items-center space-x-3">
+                                    <i class="fas fa-envelope brand-color text-xl"></i>
+                                    <div>
+                                        <p class="font-medium text-responsive-base">អ៊ីមែល</p>
+                                        <p class="text-gray-600 text-responsive-base">info@audioarticles.com</p>
+                                    </div>
+                                </div>
+                                
+                                <div class="flex items-center space-x-3">
+                                    <i class="fas fa-phone brand-color text-xl"></i>
+                                    <div>
+                                        <p class="font-medium text-responsive-base">ទូរស័ព្ទ</p>
+                                        <p class="text-gray-600 text-responsive-base">+855 12 345 678</p>
+                                    </div>
+                                </div>
+                                
+                                <div class="flex items-center space-x-3">
+                                    <i class="fas fa-map-marker-alt brand-color text-xl"></i>
+                                    <div>
+                                        <p class="font-medium text-responsive-base">អាសយដ្ឋាន</p>
+                                        <p class="text-gray-600 text-responsive-base">ភ្នំពេញ, កម្ពុជា</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Social Media -->
+                            <div class="mt-6">
+                                <h4 class="font-semibold mb-3 text-responsive-lg">បណ្តាញសង្គម</h4>
+                                <div class="flex space-x-4">
+                                    <a href="#" class="w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center hover:bg-red-100 transition-colors">
+                                        <i class="fab fa-facebook-f brand-color"></i>
+                                    </a>
+                                    <a href="#" class="w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center hover:bg-red-100 transition-colors">
+                                        <i class="fab fa-telegram brand-color"></i>
+                                    </a>
+                                    <a href="#" class="w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center hover:bg-red-100 transition-colors">
+                                        <i class="fab fa-youtube brand-color"></i>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Contact Form -->
+                        <div>
+                            <h3 class="font-semibold text-xl mb-4 text-responsive-lg">សូមទំនាក់ទំនងមកយើង</h3>
+                            <form class="space-y-4">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1 text-responsive-base">ឈ្មោះ</label>
+                                    <input type="text" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-red-500 focus:border-red-500 text-responsive-base" placeholder="បញ្ចូលឈ្មោះរបស់អ្នក">
+                                </div>
+                                
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1 text-responsive-base">អ៊ីមែល</label>
+                                    <input type="email" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-red-500 focus:border-red-500 text-responsive-base" placeholder="បញ្ចូលអ៊ីមែលរបស់អ្នក">
+                                </div>
+                                
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1 text-responsive-base">សារ</label>
+                                    <textarea rows="4" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-red-500 focus:border-red-500 text-responsive-base" placeholder="បញ្ចូលសាររបស់អ្នក..."></textarea>
+                                </div>
+                                
+                                <button type="submit" class="w-full brand-bg text-white py-3 rounded-md hover:bg-red-700 transition-colors font-semibold text-responsive-base">
+                                    ផ្ញើសារ
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== ARTICLE PAGE ===== -->
+    <div id="article-page" class="page">
+        <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-6 md:py-8">
+            <div class="bg-white rounded-lg shadow-lg overflow-hidden">
+                <div id="articleContent" class="p-6 md:p-8 text-center">
+                    <div class="loading-spinner mx-auto"></div>
+                    <p class="text-gray-500 mt-4 text-responsive-base">កំពុងផ្ទុកអត្ថបទ...</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+        <!-- Image Modal -->
+    <div id="imageModal" class="fixed inset-0 bg-black bg-opacity-75 z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-lg max-w-2xl w-full max-h-[90vh] overflow-hidden">
+            <div class="relative">
+                <button id="modalClose" class="absolute top-2 right-2 text-white bg-black bg-opacity-50 rounded-full w-8 h-8 flex items-center justify-center z-10 hover:bg-opacity-70 transition-all">
+                    <i class="fas fa-times"></i>
+                </button>
+                <img id="modalImage" src="" alt="" class="w-full h-auto max-h-[60vh] object-cover">
+            </div>
+            <div class="p-4">
+                <h3 id="modalTitle" class="text-lg font-semibold mb-2 text-gray-800"></h3>
+                <p id="modalDescription" class="text-gray-600 text-sm mb-4 line-clamp-3"></p>
+                <button id="modalPlayBtn" class="brand-bg text-white px-6 py-3 rounded-lg w-full hover:bg-red-700 transition-colors font-semibold flex items-center justify-center space-x-2">
+                    <i class="fas fa-play"></i>
+                    <span>ស្ដាប់ឥឡូវ</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-gray-800 text-white py-8 md:py-12">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-6 md:gap-8">
+                <div class="md:col-span-2">
+                    <div class="flex items-center space-x-2 mb-4">
+                        <i class="fas fa-headphones brand-color text-2xl"></i>
+                        <span class="font-bold text-xl">AudioArticles</span>
+                    </div>
+                    <p class="text-gray-400 text-sm md:text-base text-responsive-base">
+                        វេទិកាសម្រាប់ចែករំលែកចំណេះដឹងតាមរយៈសំលេង។ រកឃើញអត្ថបទសម្រាប់ស្ដាប់លើប្រធានបទសំខាន់ៗនៅពេលដែលអ្នកចង់។
+                    </p>
+                </div>
+                
+                <div>
+                    <h3 class="font-semibold text-lg mb-3 md:mb-4 text-responsive-lg">តំណរហ័ស</h3>
+                    <ul class="space-y-2">
+                        <li><a href="#" class="text-gray-400 hover:text-white transition-colors text-sm md:text-base text-responsive-base" onclick="showPage('home'); return false;">ទំព័រដើម</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white transition-colors text-sm md:text-base text-responsive-base" onclick="showPage('categories'); return false;">ប្រភេទ</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white transition-colors text-sm md:text-base text-responsive-base" onclick="showPage('about'); return false;">អំពីយើង</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white transition-colors text-sm md:text-base text-responsive-base" onclick="showPage('contact'); return false;">ទំនាក់ទំនង</a></li>
+                    </ul>
+                </div>
+                
+                <div>
+                    <h3 class="font-semibold text-lg mb-3 md:mb-4 text-responsive-lg">បណ្តាញសង្គម</h3>
+                    <div class="flex space-x-3">
+                        <a href="#" class="text-gray-400 hover:text-white transition-colors">
+                            <i class="fab fa-facebook text-xl"></i>
+                        </a>
+                        <a href="#" class="text-gray-400 hover:text-white transition-colors">
+                            <i class="fab fa-telegram text-xl"></i>
+                        </a>
+                        <a href="#" class="text-gray-400 hover:text-white transition-colors">
+                            <i class="fab fa-youtube text-xl"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="border-t border-gray-700 mt-6 md:mt-8 pt-6 md:pt-8 text-center text-gray-400">
+                <p class="text-sm md:text-base text-responsive-base">© 2024 AudioArticles. រក្សាសិទ្ធិគ្រប់បែបយ៉ាង</p>
+            </div>
+        </div>
+    </footer>
+            <!-- JavaScript Files -->
+    <!-- JavaScript Files -->
+    <script src="assets/js/main.js"></script>
+    <script src="assets/js/categoriesScroll.js"></script>
+    <script src="assets/js/homeArticles.js"></script>
+    <!-- Remove duplicate audioPlayer.js if it's here -->
+    <!-- JavaScript -->
+       <script>
+        // Mobile Menu Functions - FIXED
+        function toggleMobileMenu() {
+            const mobileMenu = document.getElementById('mobileMenu');
+            const mobileOverlay = document.getElementById('mobileOverlay');
+            
+            console.log('🔄 Toggle mobile menu clicked');
+            console.log('Mobile menu element:', mobileMenu);
+            console.log('Mobile overlay element:', mobileOverlay);
+            
+            mobileMenu.classList.toggle('open');
+            mobileOverlay.classList.toggle('active');
+            
+            // Prevent body scroll when menu is open
+            document.body.style.overflow = mobileMenu.classList.contains('open') ? 'hidden' : '';
+            
+            console.log('Mobile menu open:', mobileMenu.classList.contains('open'));
+        }
+
+        function closeMobileMenu() {
+            const mobileMenu = document.getElementById('mobileMenu');
+            const mobileOverlay = document.getElementById('mobileOverlay');
+            
+            console.log('❌ Close mobile menu');
+            
+            mobileMenu.classList.remove('open');
+            mobileOverlay.classList.remove('active');
+            document.body.style.overflow = '';
+        }
+
+        // Page Routing
+        function showPage(pageName) {
+            // Hide all pages
+            document.querySelectorAll('.page').forEach(page => {
+                page.classList.remove('active');
+            });
+            
+            // Show selected page
+            const targetPage = document.getElementById(`${pageName}-page`);
+            if (targetPage) {
+                targetPage.classList.add('active');
+            }
+            
+            // Update URL without reloading
+            const newUrl = pageName === 'home' ? '/' : `/${pageName}`;
+            window.history.pushState({ page: pageName }, '', newUrl);
+            
+            // Scroll to top
+            window.scrollTo(0, 0);
+            
+            // Close mobile menu
+            closeMobileMenu();
+        }
+
+        // Event Listeners - FIXED
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('🚀 DOM fully loaded');
+            
+            // Mobile menu buttons
+            const hamburger = document.getElementById('hamburger');
+            const closeButton = document.getElementById('closeMobileMenu');
+            const mobileOverlay = document.getElementById('mobileOverlay');
+            
+            console.log('🍔 Hamburger element:', hamburger);
+            console.log('❌ Close button element:', closeButton);
+            console.log('🔲 Mobile overlay element:', mobileOverlay);
+            
+            if (hamburger) {
+                hamburger.addEventListener('click', toggleMobileMenu);
+                console.log('✅ Added click listener to hamburger');
+            } else {
+                console.error('❌ Hamburger button not found!');
+            }
+            
+            if (closeButton) {
+                closeButton.addEventListener('click', closeMobileMenu);
+                console.log('✅ Added click listener to close button');
+            }
+            
+            if (mobileOverlay) {
+                mobileOverlay.addEventListener('click', closeMobileMenu);
+                console.log('✅ Added click listener to mobile overlay');
+            }
+
+            // Handle browser back/forward buttons
+            window.addEventListener('popstate', (event) => {
+                const page = event.state?.page || 'home';
+                showPage(page);
+            });
+
+            // Initialize - show home page
+            const path = window.location.pathname;
+            if (path === '/categories') {
+                showPage('categories');
+            } else if (path === '/about') {
+                showPage('about');
+            } else if (path === '/contact') {
+                showPage('contact');
+            } else if (path === '/article') {
+                showPage('article');
+            } else {
+                showPage('home');
+            }
+        });
+
+        // ===== SEARCH FUNCTIONALITY =====
+        document.addEventListener('DOMContentLoaded', function() {
+            const searchInput = document.getElementById('searchInput');
+            const searchButton = document.querySelector('#searchInput + button');
+
+            if (searchInput && searchButton) {
+                searchButton.addEventListener('click', performSearch);
+                searchInput.addEventListener('keypress', function(e) {
+                    if (e.key === 'Enter') {
+                        performSearch();
+                    }
+                });
+            }
+
+            function performSearch() {
+                const query = searchInput.value.trim();
+                if (query) {
+                    alert('Search functionality for: ' + query);
+                }
+            }
+        });
+    </script>
+</body>
+</html>
