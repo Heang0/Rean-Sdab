@@ -10,11 +10,18 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Odor+Mean+Chey&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;700&display=swap" rel="stylesheet">
     <style>
         /* Custom CSS for better responsiveness */
         body { 
             font-family: 'Odor Mean Chey', serif !important; 
         }
+        /* Professional English font for logo/brand name only */
+.brand-logo {
+    font-family: 'Poppins', 'Montserrat', 'Inter', sans-serif !important;
+    font-weight: 700 !important;
+    letter-spacing: -0.5px;
+}
             /* === PROFESSIONAL NUMBER STYLING FOR INDEX PAGE === */
     .professional-numbers {
         font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
@@ -30,6 +37,7 @@
         background: rgba(255, 0, 0, 0.1) !important; /* Red background to see it */
         padding: 12px !important;
     }
+    
     
     /* Make sure mobile menu has high z-index */
     #mobileMenu {
@@ -180,8 +188,8 @@
                 <!-- Logo -->
                 <div class="flex items-center">
                     <a href="/" class="flex items-center space-x-2" onclick="showPage('home'); return false;">
-                        <i class="fas fa-headphones brand-color text-2xl"></i>
-                        <span class="font-bold text-xl text-gray-800">AudioArticles</span>
+                    <i class="fas fa-headphones brand-color text-2xl"></i>
+                    <span class="brand-logo font-bold text-xl text-gray-800">AudioArticles</span>
                     </a>
                 </div>
 
@@ -491,8 +499,8 @@
             <div class="grid grid-cols-1 md:grid-cols-4 gap-6 md:gap-8">
                 <div class="md:col-span-2">
                     <div class="flex items-center space-x-2 mb-4">
-                        <i class="fas fa-headphones brand-color text-2xl"></i>
-                        <span class="font-bold text-xl">AudioArticles</span>
+                    <i class="fas fa-headphones brand-color text-2xl"></i>
+                    <span class="brand-logo font-bold text-xl">AudioArticles</span>
                     </div>
                     <p class="text-gray-400 text-sm md:text-base text-responsive-base">
                         វេទិកាសម្រាប់ចែករំលែកចំណេះដឹងតាមរយៈសំលេង។ រកឃើញអត្ថបទសម្រាប់ស្ដាប់លើប្រធានបទសំខាន់ៗនៅពេលដែលអ្នកចង់។
