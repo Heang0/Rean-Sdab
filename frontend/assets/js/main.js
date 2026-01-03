@@ -201,22 +201,27 @@ navigateToArticle(articleId) {
             console.error('Error playing article:', error);
         }
     }
+// UPDATE IN BOTH FILES
 formatDuration(seconds) {
-    // Handle null/undefined/0 values
-    if (!seconds || seconds === 0) return '0m 0s';
+    // ✅ IMPROVED: Better handling for missing/incorrect durations
+    if (!seconds || seconds === 0 || isNaN(seconds)) {
+        return '0m 00s';
+    }
     
-    // Convert to number in case it's a string
+    // Convert to number
     seconds = Number(seconds);
+    
+    // Handle negative values
+    if (seconds < 0) seconds = 0;
     
     const hours = Math.floor(seconds / 3600);
     const minutes = Math.floor((seconds % 3600) / 60);
     const secs = Math.floor(seconds % 60);
     
-    // Format based on duration length
     if (hours > 0) {
-        return `${hours}h ${minutes}m ${secs}s`;
+        return `${hours}h ${minutes.toString().padStart(2, '0')}m ${secs.toString().padStart(2, '0')}s`;
     } else if (minutes > 0) {
-        return `${minutes}m ${secs}s`;
+        return `${minutes}m ${secs.toString().padStart(2, '0')}s`;
     } else {
         return `${secs}s`;
     }

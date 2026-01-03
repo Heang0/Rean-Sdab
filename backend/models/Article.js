@@ -22,7 +22,6 @@ const articleSchema = new mongoose.Schema({
     type: String,
     required: true
   },
-  // ADD THESE FIELDS FOR CLOUDINARY DELETION
   audioPublicId: {
     type: String,
     required: true
@@ -34,6 +33,10 @@ const articleSchema = new mongoose.Schema({
   duration: {
     type: Number,
     required: true
+  },
+  durationCalculationMethod: {
+    type: String,
+    default: 'unknown'
   },
   category: {
     type: String,
@@ -55,6 +58,7 @@ const articleSchema = new mongoose.Schema({
     type: Boolean,
     default: false
   }
+  // REMOVED: shortId field
 });
 
 module.exports = mongoose.model('Article', articleSchema);

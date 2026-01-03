@@ -148,14 +148,31 @@ class HomeArticles {
         this.hideModal();
     }
 
-    formatDuration(seconds) {
-        if (!seconds) return '0:00';
-        const minutes = Math.floor(seconds / 60);
-        const secs = Math.floor(seconds % 60);
-        
-        return `${minutes}ន ${secs}វ`;
+// UPDATE IN BOTH FILES
+formatDuration(seconds) {
+    // ✅ IMPROVED: Better handling for missing/incorrect durations
+    if (!seconds || seconds === 0 || isNaN(seconds)) {
+        return '0m 00s';
     }
-
+    
+    // Convert to number
+    seconds = Number(seconds);
+    
+    // Handle negative values
+    if (seconds < 0) seconds = 0;
+    
+    const hours = Math.floor(seconds / 3600);
+    const minutes = Math.floor((seconds % 3600) / 60);
+    const secs = Math.floor(seconds % 60);
+    
+    if (hours > 0) {
+        return `${hours}h ${minutes.toString().padStart(2, '0')}m ${secs.toString().padStart(2, '0')}s`;
+    } else if (minutes > 0) {
+        return `${minutes}m ${secs.toString().padStart(2, '0')}s`;
+    } else {
+        return `${secs}s`;
+    }
+}
     showError(message) {
         const container = document.getElementById('articlesContainer');
         if (container) {

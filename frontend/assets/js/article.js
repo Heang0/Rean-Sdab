@@ -206,13 +206,13 @@ renderRelatedArticles(articles) {
         }
     }
 
-    formatDuration(seconds) {
+formatDuration(seconds) {
     if (!seconds) return '0:00';
     const minutes = Math.floor(seconds / 60);
     const secs = Math.floor(seconds % 60);
     
-    // English format: 5m 30s
-    return `${minutes}m ${secs}s`;
+    // Return proper format with leading zeros for seconds
+    return `${minutes}:${secs.toString().padStart(2, '0')}`;
 }
 
 formatPlays(plays) {

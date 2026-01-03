@@ -1,4 +1,4 @@
-// Simple and Reliable Audio Player
+// Enhanced Audio Player with Real Duration Detection
 class AudioPlayer {
     constructor() {
         this.audio = new Audio();
@@ -9,6 +9,7 @@ class AudioPlayer {
         this.volume = 1;
         this.playbackRate = 1.0;
         this.isExpanded = false;
+        this.useHtml5Duration = false; // Track if we're using HTML5 duration
         
         console.log('🎵 AudioPlayer initialized');
         this.init();
@@ -16,42 +17,83 @@ class AudioPlayer {
 
     init() {
         this.setupAudioEvents();
-        // Don't setup UI events here - wait for DOM
+        this.setupUIEvents();
     }
 
-    setupAudioEvents() {
-        this.audio.addEventListener('loadedmetadata', () => {
-            console.log('📊 Audio metadata loaded, duration:', this.audio.duration);
-            this.duration = this.audio.duration;
-            this.updateDurationDisplay();
-        });
+setupAudioEvents() {
+    // Handle metadata loaded - THIS IS THE KEY EVENT
+    this.audio.addEventListener('loadedmetadata', () => {
+        console.log('📊 HTML5 Audio metadata loaded');
+        console.log('🎵 HTML5 duration:', this.audio.duration, 'seconds');
+        
+        // Check if HTML5 duration is valid
+        if (this.audio.duration && this.audio.duration > 0 && !isNaN(this.audio.duration)) {
+            const html5Duration = Math.round(this.audio.duration);
+            const dbDuration = this.currentArticle?.duration || 0;
+            
+            console.log('📊 Duration comparison:');
+            console.log('   HTML5:', html5Duration, 'seconds');
+            console.log('   Database:', dbDuration, 'seconds');
+            console.log('   Difference:', Math.abs(html5Duration - dbDuration), 'seconds');
+            
+            // Always prefer HTML5 duration if it's significantly different
+            // or if database duration is suspicious (exactly 480s = 8:00)
+            const isSuspiciousDBDuration = dbDuration === 480 || dbDuration === 0;
+            const isSignificantDifference = Math.abs(html5Duration - dbDuration) > 30;
+            
+            if (isSuspiciousDBDuration || isSignificantDifference) {
+                console.log('🔄 Using HTML5 duration (more accurate)');
+                this.duration = html5Duration;
+                this.useHtml5Duration = true;
+                
+                // Update database with correct duration
+                this.updateDatabaseDuration(html5Duration);
+            } else {
+                console.log('✅ Using database duration (close enough)');
+                this.duration = dbDuration;
+                this.useHtml5Duration = false;
+            }
+        } else {
+            console.log('⚠️ HTML5 duration invalid, using database duration');
+            this.duration = this.currentArticle?.duration || 0;
+            this.useHtml5Duration = false;
+        }
+        
+        console.log('🎵 Final duration:', this.duration, 'seconds');
+        this.updateDurationDisplay();
+        this.updateTimeDisplay();
+        this.updateProgressBar();
+    });
 
-        this.audio.addEventListener('timeupdate', () => {
-            this.currentTime = this.audio.currentTime;
-            this.updateProgressBar();
-            this.updateTimeDisplay();
-        });
+    this.audio.addEventListener('timeupdate', () => {
+        this.currentTime = this.audio.currentTime;
+        this.updateProgressBar();
+        this.updateTimeDisplay();
+    });
 
-        this.audio.addEventListener('ended', () => {
-            console.log('⏹️ Audio ended');
-            this.isPlaying = false;
-            this.updatePlayButton();
-        });
+    this.audio.addEventListener('ended', () => {
+        console.log('⏹️ Audio ended');
+        this.isPlaying = false;
+        this.updatePlayButton();
+    });
 
-        this.audio.addEventListener('canplay', () => {
-            console.log('▶️ Audio can play');
-        });
+    this.audio.addEventListener('canplay', () => {
+        console.log('▶️ Audio can play');
+    });
 
-        this.audio.addEventListener('error', (e) => {
-            console.error('❌ Audio error:', e);
-            console.error('Audio error details:', this.audio.error);
-        });
-    }
+    this.audio.addEventListener('error', (e) => {
+        console.error('❌ Audio error:', e);
+        console.error('Audio error details:', this.audio.error);
+        console.error('Audio src:', this.audio.src);
+    });
+
+    this.audio.addEventListener('durationchange', () => {
+        console.log('🔄 Duration changed event:', this.audio.duration);
+    });
+}
 
     setupUIEvents() {
         console.log('🔧 Setting up UI events');
-        
-        // Use direct onclick handlers to avoid event listener issues
         this.setupDirectHandlers();
     }
 
@@ -61,51 +103,25 @@ class AudioPlayer {
         const playPauseBtn = document.getElementById('playPauseBtn');
         
         if (miniPlayBtn) {
-            miniPlayBtn.onclick = () => {
-                console.log('🎵 Mini play clicked');
-                this.togglePlay();
-            };
+            miniPlayBtn.onclick = () => this.togglePlay();
         }
         if (playPauseBtn) {
-            playPauseBtn.onclick = () => {
-                console.log('🎵 Main play clicked');
-                this.togglePlay();
-            };
+            playPauseBtn.onclick = () => this.togglePlay();
         }
 
         // Expand/Collapse
         const expandPlayer = document.getElementById('expandPlayer');
         const collapsePlayer = document.getElementById('collapsePlayer');
         
-        if (expandPlayer) {
-            expandPlayer.onclick = () => {
-                console.log('📱 Expand clicked');
-                this.expandPlayer();
-            };
-        }
-        if (collapsePlayer) {
-            collapsePlayer.onclick = () => {
-                console.log('📱 Collapse clicked');
-                this.collapsePlayer();
-            };
-        }
+        if (expandPlayer) expandPlayer.onclick = () => this.expandPlayer();
+        if (collapsePlayer) collapsePlayer.onclick = () => this.collapsePlayer();
 
-        // Skip buttons - FIXED
+        // Skip buttons
         const rewindBtn = document.getElementById('rewindBtn');
         const forwardBtn = document.getElementById('forwardBtn');
         
-        if (rewindBtn) {
-            rewindBtn.onclick = () => {
-                console.log('⏪ Rewind clicked');
-                this.skip(-15);
-            };
-        }
-        if (forwardBtn) {
-            forwardBtn.onclick = () => {
-                console.log('⏩ Forward clicked');
-                this.skip(30);
-            };
-        }
+        if (rewindBtn) rewindBtn.onclick = () => this.skip(-15);
+        if (forwardBtn) forwardBtn.onclick = () => this.skip(30);
 
         // Progress bars
         const progressInput = document.getElementById('progressInput');
@@ -126,9 +142,7 @@ class AudioPlayer {
 
         // Speed control
         const speedBtn = document.getElementById('speedBtn');
-        if (speedBtn) {
-            speedBtn.onclick = () => this.toggleSpeed();
-        }
+        if (speedBtn) speedBtn.onclick = () => this.toggleSpeed();
 
         // Volume control
         const volumeControl = document.getElementById('volumeControl');
@@ -141,38 +155,132 @@ class AudioPlayer {
         }
     }
 
-    loadArticle(article) {
-        console.log('📥 Loading article:', article?.title);
-        
-        if (!article || !article.audioUrl) {
-            console.error('❌ Invalid article data');
-            return;
-        }
+loadArticle(article) {
+    console.log('📥 Loading article:', article?.title);
+    console.log('📊 Article data:', {
+        title: article?.title,
+        duration: article?.duration,
+        formattedDuration: article?.duration ? 
+            `${Math.floor(article.duration/60)}:${Math.floor(article.duration%60).toString().padStart(2,'0')}` : '0:00',
+        audioUrl: article?.audioUrl ? '✅' : '❌'
+    });
+    
+    if (!article || !article.audioUrl) {
+        console.error('❌ Invalid article data');
+        return;
+    }
 
-        this.currentArticle = article;
+    this.currentArticle = article;
+    this.useHtml5Duration = false;
+    
+    try {
+        // Reset audio
+        this.audio.pause();
+        this.audio.currentTime = 0;
+        this.isPlaying = false;
+        
+        // Clear previous src
+        this.audio.src = '';
+        
+        // Set initial duration from database
+        if (article.duration && article.duration > 0 && !isNaN(article.duration)) {
+            this.duration = article.duration;
+            console.log('📊 Initial duration from database:', this.duration, 'seconds');
+            
+            // Check if it's the suspicious 8:00 duration
+            if (this.duration === 480) {
+                console.log('⚠️ Database duration is exactly 8:00 - may be default value');
+            }
+        } else {
+            this.duration = 0;
+            console.log('⚠️ No valid duration in database');
+        }
+        
+        // Update display with initial duration
+        this.updateDurationDisplay();
+        this.updateTimeDisplay();
+        this.updateProgressBar();
+        
+        // IMPORTANT: Set crossOrigin for Cloudinary URLs
+        if (article.audioUrl.includes('cloudinary.com')) {
+            this.audio.crossOrigin = 'anonymous';
+            console.log('☁️ Cloudinary URL detected, setting crossOrigin="anonymous"');
+        }
+        
+        // Set new source
+        this.audio.src = article.audioUrl;
+        this.audio.volume = this.volume;
+        this.audio.playbackRate = this.playbackRate;
+        
+        this.updatePlayerInfo();
+        this.showMiniPlayer();
+        this.updatePlayButton();
+        
+        // Force metadata load
+        console.log('🔄 Loading audio metadata...');
+        this.audio.load();
+        
+        // Set timeout to check if metadata loaded
+        setTimeout(() => {
+            if (this.duration === 0 || isNaN(this.duration)) {
+                console.log('⏰ Metadata load timeout, using fallback');
+                if (article.duration && article.duration > 0) {
+                    this.duration = article.duration;
+                } else {
+                    this.duration = 300; // 5 minute fallback
+                }
+                this.updateDurationDisplay();
+                this.updateTimeDisplay();
+            }
+        }, 5000); // 5 second timeout
+        
+        console.log('✅ Audio source set, waiting for metadata...');
+        
+    } catch (error) {
+        console.error('❌ Error loading audio:', error);
+    }
+}
+
+// Update database with correct duration
+async updateDatabaseDuration(html5Duration) {
+    if (!this.currentArticle || !this.currentArticle._id) {
+        console.log('⚠️ No article ID, cannot update database');
+        return;
+    }
+    
+    const dbDuration = this.currentArticle.duration || 0;
+    const diff = Math.abs(html5Duration - dbDuration);
+    
+    // Only update if difference is significant (> 30 seconds)
+    // or if database duration is suspicious (0 or exactly 480)
+    const shouldUpdate = diff > 30 || dbDuration === 0 || dbDuration === 480;
+    
+    if (shouldUpdate) {
+        console.log(`💾 Updating database duration: ${dbDuration}s → ${html5Duration}s (diff: ${diff}s)`);
         
         try {
-            // Reset audio
-            this.audio.pause();
-            this.audio.currentTime = 0;
+            const response = await fetch(`http://localhost:5000/api/articles/${this.currentArticle._id}/duration`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ duration: html5Duration })
+            });
             
-            // Set new source
-            this.audio.src = article.audioUrl;
-            this.audio.volume = this.volume;
-            this.audio.playbackRate = this.playbackRate;
-            
-            this.updatePlayerInfo();
-            this.showMiniPlayer();
-            
-            // Preload audio
-            this.audio.load();
-            
-            console.log('✅ Audio loaded successfully');
-            
+            if (response.ok) {
+                console.log('✅ Database duration updated successfully');
+                // Update local article object
+                this.currentArticle.duration = html5Duration;
+            } else {
+                console.log('⚠️ Failed to update database duration');
+            }
         } catch (error) {
-            console.error('❌ Error loading audio:', error);
+            console.error('❌ Error updating database:', error);
         }
+    } else {
+        console.log(`✅ Database duration is accurate (diff: ${diff}s), no update needed`);
     }
+}
 
     updatePlayerInfo() {
         if (!this.currentArticle) return;
@@ -259,7 +367,6 @@ class AudioPlayer {
         const newTime = Math.max(0, this.audio.currentTime + seconds);
         this.audio.currentTime = newTime;
         
-        // Keep playing if it was playing
         if (this.isPlaying) {
             this.audio.play().catch(e => {
                 console.log('⚠️ Auto-play after skip prevented');
@@ -302,7 +409,6 @@ class AudioPlayer {
     updateProgressBar() {
         const progress = (this.currentTime / this.duration) * 100 || 0;
         
-        // Update progress bars
         const miniProgress = document.getElementById('miniProgress');
         const fullProgress = document.getElementById('fullProgress');
         const miniProgressInput = document.getElementById('miniProgressInput');
@@ -343,7 +449,7 @@ class AudioPlayer {
     }
 
     formatTime(seconds) {
-        if (isNaN(seconds)) return '0:00';
+        if (isNaN(seconds) || seconds === 0) return '0:00';
         const minutes = Math.floor(seconds / 60);
         const secs = Math.floor(seconds % 60);
         return `${minutes}:${secs.toString().padStart(2, '0')}`;

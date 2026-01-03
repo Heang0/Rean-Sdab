@@ -920,13 +920,15 @@ async updateArticle() {
 
     formatDuration(seconds) {
         if (!seconds) return '0:00';
+        
         const hours = Math.floor(seconds / 3600);
         const minutes = Math.floor((seconds % 3600) / 60);
+        const secs = Math.floor(seconds % 60);
         
         if (hours > 0) {
-            return `${hours}h ${minutes}m`;
+            return `${hours}:${minutes.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
         }
-        return `${minutes}m`;
+        return `${minutes}:${secs.toString().padStart(2, '0')}`;
     }
 }
 

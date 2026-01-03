@@ -1,21 +1,20 @@
 const express = require('express');
 const router = express.Router();
 const articleController = require('../controllers/articleController');
-const { upload } = require('../middleware/upload'); // ← ADD DESTRUCTURING
+const { upload } = require('../middleware/upload');
 
-// GET /api/articles - Get all articles
+// Existing routes
 router.get('/', articleController.getArticles);
-
-// GET /api/articles/:id - Get single article
 router.get('/:id', articleController.getArticle);
-
-// POST /api/articles - Create new article
 router.post('/', upload, articleController.createArticle);
-
-// PUT /api/articles/:id - Update article
 router.put('/:id', upload, articleController.updateArticle);
-
-// DELETE /api/articles/:id - Delete article
 router.delete('/:id', articleController.deleteArticle);
+
+// NEW ROUTES FOR DURATION FIXING
+router.get('/debug/durations', articleController.debugDurations);
+router.put('/:id/fix-duration', articleController.fixArticleDuration);
+router.put('/:id/duration', articleController.updateArticleDuration);
+router.get('/:id/real-duration', articleController.getArticleWithRealDuration);
+router.post('/bulk-fix-durations', articleController.bulkFixDurations);
 
 module.exports = router;
