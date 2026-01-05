@@ -1,29 +1,35 @@
 const multer = require('multer');
-const { uploadToCloudinary } = require('../config/cloudStorage'); // ADD THIS IMPORT
+const { uploadToCloudinary } = require('../config/cloudStorage');
+const audioCompressor = require('./audioCompressor'); // ADD THIS
 
-// Memory storage - files will be stored in memory as buffers
+// Memory storage
 const storage = multer.memoryStorage();
 
-// Configure multer for multiple files
+// Configure multer
 const upload = multer({
   storage: storage,
   limits: {
-    fileSize: 500 * 1024 * 1024, // 500MB for audio files
+    fileSize: 50 * 1024 * 1024, // Reduced to 50MB for faster uploads
   },
   fileFilter: (req, file, cb) => {
     if (file.fieldname === 'audio') {
       // Accept audio files
-      if (file.mimetype.startsWith('audio/')) {
+      const audioTypes = [
+        'audio/mpeg', 'audio/mp3', 'audio/wav', 'audio/x-wav',
+        'audio/m4a', 'audio/x-m4a', 'audio/aac', 'audio/ogg',
+        'audio/webm'
+      ];
+      
+      if (audioTypes.includes(file.mimetype.toLowerCase())) {
         cb(null, true);
       } else {
-        cb(new Error('Please upload an audio file (MP3, WAV, M4A, etc.)'), false);
+        cb(new Error('Please upload MP3, WAV, M4A, OGG, or WEBM files'), false);
       }
     } else if (file.fieldname === 'thumbnail') {
-      // Accept image files
       if (file.mimetype.startsWith('image/')) {
         cb(null, true);
       } else {
-        cb(new Error('Please upload an image file (JPG, PNG, WebP, etc.)'), false);
+        cb(new Error('Please upload an image file'), false);
       }
     } else {
       cb(new Error('Unexpected field'), false);
@@ -34,21 +40,57 @@ const upload = multer({
   { name: 'thumbnail', maxCount: 1 }
 ]);
 
-// ADD THESE BACK for your upload routes
-const uploadAudio = multer({
-  storage: storage,
-  fileFilter: (req, file, cb) => {
-    if (file.mimetype.startsWith('audio/')) {
-      cb(null, true);
-    } else {
-      cb(new Error('Please upload an audio file (MP3, WAV, M4A, etc.)'), false);
+// Simple compression middleware
+const compressAudio = async (req, res, next) => {
+  if (req.file && req.file.mimetype.startsWith('audio/')) {
+    try {
+      console.log('🔧 Processing audio file:', req.file.originalname);
+      console.log('📊 Original size:', (req.file.size / (1024 * 1024)).toFixed(2), 'MB');
+      
+      // Get accurate duration
+      const duration = await audioCompressor.getAudioDuration(req.file.buffer);
+      req.audioDuration = duration;
+      
+      console.log('✅ Duration detected:', duration, 'seconds');
+      
+    } catch (error) {
+      console.error('❌ Audio processing error:', error.message);
+      req.audioDuration = 0;
     }
-  },
-  limits: { 
-    fileSize: 500 * 1024 * 1024,
-    files: 1
   }
-}).single('audio');
+  next();
+};
+
+// Upload handlers
+const uploadAudio = (req, res, next) => {
+  const uploader = multer({
+    storage: storage,
+    fileFilter: (req, file, cb) => {
+      const audioTypes = [
+        'audio/mpeg', 'audio/mp3', 'audio/wav', 'audio/x-wav',
+        'audio/m4a', 'audio/x-m4a', 'audio/aac', 'audio/ogg',
+        'audio/webm'
+      ];
+      
+      if (audioTypes.includes(file.mimetype.toLowerCase())) {
+        cb(null, true);
+      } else {
+        cb(new Error('Unsupported audio format'), false);
+      }
+    },
+    limits: { 
+      fileSize: 50 * 1024 * 1024, // 50MB max
+      files: 1
+    }
+  }).single('audio');
+  
+  uploader(req, res, (err) => {
+    if (err) {
+      return res.status(400).json({ error: err.message });
+    }
+    next();
+  });
+};
 
 const uploadThumbnail = multer({
   storage: storage,
@@ -56,7 +98,7 @@ const uploadThumbnail = multer({
     if (file.mimetype.startsWith('image/')) {
       cb(null, true);
     } else {
-      cb(new Error('Please upload an image file (JPG, PNG, WebP, etc.)'), false);
+      cb(new Error('Please upload an image file'), false);
     }
   },
   limits: { 
@@ -65,7 +107,7 @@ const uploadThumbnail = multer({
   }
 }).single('thumbnail');
 
-// Middleware to handle Cloudinary upload
+// Cloudinary upload middleware
 const handleCloudUpload = (resourceType, folder) => {
   return async (req, res, next) => {
     try {
@@ -80,8 +122,13 @@ const handleCloudUpload = (resourceType, folder) => {
         resourceType
       );
 
-      // Add Cloudinary result to request object
       req.cloudinaryResult = result;
+      
+      // Add duration if it's audio
+      if (req.audioDuration) {
+        req.cloudinaryResult.duration = req.audioDuration;
+      }
+      
       next();
     } catch (error) {
       res.status(500).json({ error: `Upload failed: ${error.message}` });
@@ -90,8 +137,10 @@ const handleCloudUpload = (resourceType, folder) => {
 };
 
 module.exports = {
-  upload, // For article creation
-  uploadAudio, // For upload routes
-  uploadThumbnail, // For upload routes
-  handleCloudUpload
+  upload,
+  uploadAudio,
+  uploadThumbnail,
+  handleCloudUpload,
+  compressAudio,
+  audioCompressor // Export for use elsewhere
 };

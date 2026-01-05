@@ -1,39 +1,44 @@
 const express = require('express');
 const router = express.Router();
-const { uploadAudio, uploadThumbnail, handleCloudUpload } = require('../middleware/upload');
+const { uploadAudio, uploadThumbnail, handleCloudUpload, compressAudio } = require('../middleware/upload'); // ADD compressAudio
 const { adminAuth } = require('../middleware/auth');
 
-// Upload audio file to Cloudinary
+// Upload audio file to Cloudinary WITH COMPRESSION
 router.post('/audio', 
   adminAuth,
-  uploadAudio, // REMOVE .single('audio') - it's already configured
+  uploadAudio,
+  compressAudio,  // ADD THIS MIDDLEWARE
   handleCloudUpload('video', 'audio'),
   (req, res) => {
     try {
-      res.json({
-        message: 'Audio uploaded successfully to cloud',
+      const result = {
+        message: 'Audio uploaded and compressed successfully',
         fileUrl: req.cloudinaryResult.secure_url,
         publicId: req.cloudinaryResult.public_id,
-        duration: req.cloudinaryResult.duration,
-        format: req.cloudinaryResult.format,
+        duration: req.cloudinaryResult.duration || 0,
+        format: 'mp3', // Always MP3 after compression
         size: req.cloudinaryResult.bytes,
         originalName: req.file.originalname
-      });
+      };
+      
+      console.log('✅ Upload complete:', result);
+      
+      res.json(result);
     } catch (error) {
       res.status(500).json({ error: error.message });
     }
   }
 );
 
-// Upload thumbnail to Cloudinary
+// Upload thumbnail (no changes needed)
 router.post('/thumbnail', 
   adminAuth,
-  uploadThumbnail, // REMOVE .single('thumbnail') - it's already configured
+  uploadThumbnail,
   handleCloudUpload('image', 'thumbnails'),
   (req, res) => {
     try {
       res.json({
-        message: 'Thumbnail uploaded successfully to cloud',
+        message: 'Thumbnail uploaded successfully',
         fileUrl: req.cloudinaryResult.secure_url,
         publicId: req.cloudinaryResult.public_id,
         format: req.cloudinaryResult.format,

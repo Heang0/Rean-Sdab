@@ -206,3 +206,87 @@ body {
         display: none !important;
     }
 }
+/* Add to your existing CSS */
+.audio-loading {
+    position: relative;
+}
+
+.audio-loading::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 20px;
+    height: 20px;
+    border: 2px solid #f3f3f3;
+    border-top: 2px solid #dc2626;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    transform: translate(-50%, -50%);
+}
+
+/* Buffering indicator */
+.buffering-indicator {
+    display: none;
+    text-align: center;
+    padding: 10px;
+    font-size: 12px;
+    color: #666;
+}
+
+.buffering-indicator.active {
+    display: block;
+}
+
+/* Audio quality selector */
+.quality-selector {
+    position: absolute;
+    bottom: 100%;
+    right: 0;
+    background: white;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    padding: 8px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    display: none;
+    z-index: 1000;
+}
+
+.quality-selector.active {
+    display: block;
+}
+
+.quality-option {
+    padding: 8px 12px;
+    cursor: pointer;
+    border-radius: 4px;
+    margin: 2px 0;
+}
+
+.quality-option:hover {
+    background: #f3f4f6;
+}
+
+.quality-option.active {
+    background: #dc2626;
+    color: white;
+}
+
+/* Offline/error states */
+.audio-error {
+    background: #fee2e2;
+    border: 1px solid #fca5a5;
+    border-radius: 8px;
+    padding: 10px;
+    margin: 10px 0;
+    text-align: center;
+}
+
+.audio-offline {
+    background: #fef3c7;
+    border: 1px solid #fcd34d;
+    border-radius: 8px;
+    padding: 10px;
+    margin: 10px 0;
+    text-align: center;
+}

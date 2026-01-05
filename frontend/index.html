@@ -17,36 +17,35 @@
             font-family: 'Odor Mean Chey', serif !important; 
         }
         /* Professional English font for logo/brand name only */
-.brand-logo {
-    font-family: 'Poppins', 'Montserrat', 'Inter', sans-serif !important;
-    font-weight: 700 !important;
-    letter-spacing: -0.5px;
-}
-            /* === PROFESSIONAL NUMBER STYLING FOR INDEX PAGE === */
-    .professional-numbers {
-        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-        font-variant-numeric: tabular-nums;
-        font-feature-settings: "tnum";
-        font-weight: 500;
-    }
+        .brand-logo {
+            font-family: 'Poppins', 'Montserrat', 'Inter', sans-serif !important;
+            font-weight: 700 !important;
+            letter-spacing: -0.5px;
+        }
+        /* === PROFESSIONAL NUMBER STYLING FOR INDEX PAGE === */
+        .professional-numbers {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            font-variant-numeric: tabular-nums;
+            font-feature-settings: "tnum";
+            font-weight: 500;
+        }
         /* Temporary debug CSS for hamburger */
-    #hamburger {
-        cursor: pointer !important;
-        z-index: 1000 !important;
-        position: relative !important;
-        background: rgba(255, 0, 0, 0.1) !important; /* Red background to see it */
-        padding: 12px !important;
-    }
-    
-    
-    /* Make sure mobile menu has high z-index */
-    #mobileMenu {
-        z-index: 9999 !important;
-    }
-    
-    .mobile-overlay {
-        z-index: 9998 !important;
-    }
+        #hamburger {
+            cursor: pointer !important;
+            z-index: 1000 !important;
+            position: relative !important;
+            background: rgba(255, 0, 0, 0.1) !important;
+            padding: 12px !important;
+        }
+        
+        /* Make sure mobile menu has high z-index */
+        #mobileMenu {
+            z-index: 9999 !important;
+        }
+        
+        .mobile-overlay {
+            z-index: 9998 !important;
+        }
         /* Brand colors */
         .brand-color {
             color: #dc2626;
@@ -166,18 +165,268 @@
             }
         }
 
+        /* Contact numbers only */
+        .contact-number {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif !important;
+            font-variant-numeric: tabular-nums !important;
+        }
 
-    /* Contact numbers only */
-    .contact-number {
-        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif !important;
-        font-variant-numeric: tabular-nums !important;
-    }
+        /* Copyright year only */
+        .copyright-year {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif !important;
+            font-variant-numeric: tabular-nums !important;
+        }
 
-    /* Copyright year only */
-    .copyright-year {
-        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif !important;
-        font-variant-numeric: tabular-nums !important;
-    }
+        /* ===== AUDIO PLAYER STYLES ===== */
+        /* Audio player container */
+        #audioPlayerContainer {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            pointer-events: none;
+        }
+
+        #audioPlayerContainer button,
+        #audioPlayerContainer input {
+            pointer-events: auto !important;
+            position: relative;
+            z-index: 10001 !important;
+            cursor: pointer !important;
+        }
+
+        /* Mini Player */
+        #miniPlayer {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-top: 1px solid #e5e7eb;
+            box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
+            margin: 0 1rem 1rem 1rem;
+            border-radius: 12px;
+            transition: all 0.3s ease;
+            display: none;
+        }
+
+        /* Full Player */
+        #fullPlayer {
+            background: white;
+            border-top-left-radius: 20px;
+            border-top-right-radius: 20px;
+            box-shadow: 0 -5px 20px rgba(0, 0, 0, 0.15);
+            transition: transform 0.3s ease;
+            transform: translateY(100%);
+        }
+
+        #fullPlayer.active {
+            transform: translateY(0);
+        }
+
+        /* Progress bars */
+        .progress-bar-container {
+            position: relative;
+            height: 4px;
+            background: #e5e7eb;
+            border-radius: 2px;
+            overflow: hidden;
+        }
+
+        .progress-bar-fill {
+            position: absolute;
+            height: 100%;
+            background: #dc2626;
+            border-radius: 2px;
+            transition: width 0.1s linear;
+        }
+
+        .progress-bar-handle {
+            position: absolute;
+            width: 16px;
+            height: 16px;
+            background: white;
+            border: 2px solid #dc2626;
+            border-radius: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+            opacity: 0;
+            transition: opacity 0.2s ease, left 0.1s ease;
+        }
+
+        .progress-bar-container:hover .progress-bar-handle {
+            opacity: 1;
+        }
+
+        /* Time displays */
+        .time-display {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            font-variant-numeric: tabular-nums;
+            font-feature-settings: "tnum";
+        }
+
+        /* Loading states */
+        .audio-loading {
+            position: relative;
+        }
+
+        .audio-loading::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 20px;
+            height: 20px;
+            border: 2px solid #f3f3f3;
+            border-top: 2px solid #dc2626;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            transform: translate(-50%, -50%);
+        }
+
+        /* Buffering indicator */
+        .buffering-indicator {
+            display: none;
+            text-align: center;
+            padding: 8px;
+            font-size: 12px;
+            color: #666;
+            background: #f9fafb;
+            border-radius: 6px;
+            margin: 0 1rem 0.5rem 1rem;
+        }
+
+        .buffering-indicator.active {
+            display: block;
+        }
+
+        .buffering-indicator i {
+            animation: spin 1s linear infinite;
+            margin-right: 5px;
+        }
+
+        /* Quality selector */
+        .quality-selector {
+            position: absolute;
+            bottom: 100%;
+            right: 1rem;
+            background: white;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            padding: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            display: none;
+            z-index: 1000;
+            min-width: 120px;
+        }
+
+        .quality-selector.active {
+            display: block;
+        }
+
+        .quality-option {
+            padding: 8px 12px;
+            cursor: pointer;
+            border-radius: 4px;
+            margin: 2px 0;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .quality-option:hover {
+            background: #f3f4f6;
+        }
+
+        .quality-option.active {
+            background: #dc2626;
+            color: white;
+        }
+
+        .quality-option .check {
+            display: none;
+        }
+
+        .quality-option.active .check {
+            display: inline;
+        }
+
+        /* Error states */
+        .audio-error {
+            background: #fee2e2;
+            border: 1px solid #fca5a5;
+            border-radius: 8px;
+            padding: 10px;
+            margin: 0 1rem 0.5rem 1rem;
+            text-align: center;
+            font-size: 14px;
+            color: #b91c1c;
+        }
+
+        .audio-offline {
+            background: #fef3c7;
+            border: 1px solid #fcd34d;
+            border-radius: 8px;
+            padding: 10px;
+            margin: 0 1rem 0.5rem 1rem;
+            text-align: center;
+            font-size: 14px;
+            color: #92400e;
+        }
+
+        /* Volume control */
+        #volumeControl {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 80px;
+            height: 4px;
+            background: #e5e7eb;
+            border-radius: 2px;
+            outline: none;
+        }
+
+        #volumeControl::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 12px;
+            height: 12px;
+            background: #dc2626;
+            border-radius: 50%;
+            cursor: pointer;
+            border: 2px solid white;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+        }
+
+        #volumeControl::-moz-range-thumb {
+            width: 12px;
+            height: 12px;
+            background: #dc2626;
+            border-radius: 50%;
+            cursor: pointer;
+            border: 2px solid white;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+        }
+
+        /* Speed button */
+        #speedBtn {
+            min-width: 50px;
+            text-align: center;
+            font-weight: 600;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            font-variant-numeric: tabular-nums;
+        }
+
+        /* Ensure body has space for audio player */
+        body {
+            padding-bottom: 80px;
+        }
+
+        /* Glass effect for audio player */
+        .glass-effect {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
     </style>
 </head>
 <body class="bg-gray-50">
@@ -473,7 +722,7 @@
         </div>
     </div>
 
-        <!-- Image Modal -->
+    <!-- Image Modal -->
     <div id="imageModal" class="fixed inset-0 bg-black bg-opacity-75 z-50 hidden flex items-center justify-center p-4">
         <div class="bg-white rounded-lg max-w-2xl w-full max-h-[90vh] overflow-hidden">
             <div class="relative">
@@ -538,14 +787,160 @@
             </div>
         </div>
     </footer>
-            <!-- JavaScript Files -->
+
+    <!-- Audio Player - Fixed Bottom -->
+    <div id="audioPlayerContainer">
+        <!-- Buffering Indicator -->
+        <div id="bufferingIndicator" class="buffering-indicator">
+            <i class="fas fa-spinner"></i>
+            <span>កំពុងផ្ទុកអូឌីយ៉ូ...</span>
+        </div>
+        
+        <!-- Error Display -->
+        <div id="playerError" class="audio-error hidden"></div>
+        
+        <!-- Quality Selector (Hidden by default) -->
+        <div id="qualitySelector" class="quality-selector">
+            <div class="quality-option" data-quality="low" onclick="if(window.audioPlayer) window.audioPlayer.setQuality('low')">
+                <span>ទាប (សម្រាប់ទំនាក់ទំនងយឺត)</span>
+                <span class="check">✓</span>
+            </div>
+            <div class="quality-option" data-quality="medium" onclick="if(window.audioPlayer) window.audioPlayer.setQuality('medium')">
+                <span>មធ្យម (សម្រាប់ទូរស័ព្ទ)</span>
+                <span class="check">✓</span>
+            </div>
+            <div class="quality-option" data-quality="high" onclick="if(window.audioPlayer) window.audioPlayer.setQuality('high')">
+                <span>ខ្ពស់ (សម្រាប់កុំព្យូទ័រ)</span>
+                <span class="check">✓</span>
+            </div>
+        </div>
+        
+        <!-- iOS Playback Hint -->
+        <div id="iosPlaybackHint" class="audio-offline hidden">
+            <i class="fas fa-info-circle"></i>
+            <span>សម្រាប់ iOS: សូមចុចលើរូបតំណាងព្រីន់ដើម្បីចាប់ផ្តើម</span>
+        </div>
+
+        <!-- Mini Player (Collapsed) -->
+        <div id="miniPlayer" class="glass-effect">
+            <div class="p-3">
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center space-x-3 flex-1 min-w-0">
+                        <img id="miniThumbnail" src="" alt="" class="w-10 h-10 rounded-lg object-cover shadow-sm">
+                        <div class="min-w-0 flex-1">
+                            <h4 id="miniTitle" class="font-semibold text-sm text-gray-800 truncate">ជ្រើសរើសអត្ថបទ</h4>
+                            <p id="miniCategory" class="text-xs text-gray-500 truncate"></p>
+                        </div>
+                    </div>
+                    <div class="flex items-center space-x-3">
+                        <button id="miniPlayBtn" class="w-8 h-8 brand-bg text-white rounded-full flex items-center justify-center hover:bg-red-700 transition-colors">
+                            <i class="fas fa-play text-xs"></i>
+                        </button>
+                        <button id="expandPlayer" class="text-gray-500 hover:brand-color transition-colors">
+                            <i class="fas fa-chevron-up text-sm"></i>
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Progress Bar - Mini Player -->
+                <div class="mt-2">
+                    <div class="flex justify-between text-xs text-gray-500 mb-1">
+                        <span id="miniCurrentTime" class="time-display">0:00</span>
+                        <span id="miniDuration" class="time-display">0:00</span>
+                    </div>
+                    <div class="relative progress-bar-container">
+                        <div id="miniProgress" class="progress-bar-fill" style="width: 0%"></div>
+                        <div id="miniProgressHandle" class="progress-bar-handle" style="left: 0%"></div>
+                        <input type="range" id="miniProgressInput" 
+                            class="absolute top-0 left-0 w-full h-4 opacity-0 cursor-pointer"
+                            min="0" max="100" step="0.1" value="0">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Full Player (Expanded) -->
+        <div id="fullPlayer">
+            <!-- Drag Handle -->
+            <div class="flex justify-center pt-3 pb-1">
+                <div class="w-10 h-1 bg-gray-300 rounded-full"></div>
+            </div>
+            
+            <div class="p-4">
+                <!-- Track Info -->
+                <div class="text-center mb-4">
+                    <img id="fullThumbnail" src="" alt="" class="w-32 h-32 rounded-xl object-cover shadow-lg mx-auto mb-3">
+                    <h2 id="fullTitle" class="text-lg font-bold text-gray-800 mb-1">ជ្រើសរើសអត្ថបទ</h2>
+                    <p id="fullCategory" class="text-sm text-gray-500"></p>
+                </div>
+
+                <!-- Progress Section -->
+                <div class="mb-4">
+                    <div class="flex justify-between text-sm text-gray-600 mb-2">
+                        <span id="fullCurrentTime" class="time-display font-medium">0:00</span>
+                        <span id="fullDuration" class="time-display font-medium">0:00</span>
+                    </div>
+                    <div class="relative progress-bar-container">
+                        <div id="fullProgress" class="progress-bar-fill" style="width: 0%"></div>
+                        <div id="fullProgressHandle" class="progress-bar-handle" style="left: 0%"></div>
+                        <input type="range" id="progressInput" 
+                            class="absolute top-0 left-0 w-full h-4 opacity-0 cursor-pointer"
+                            min="0" max="100" step="0.1" value="0">
+                    </div>
+                </div>
+
+                <!-- Controls -->
+                <div class="flex items-center justify-center space-x-6 mb-4">
+                    <button id="rewindBtn" class="w-10 h-10 text-gray-600 hover:brand-color transition-colors" title="ត្រឡប់ ១៥វិនាទី">
+                        <i class="fas fa-undo text-lg"></i>
+                    </button>
+                    
+                    <button id="playPauseBtn" class="w-12 h-12 brand-bg text-white rounded-full flex items-center justify-center hover:bg-red-700 transition-colors shadow-lg">
+                        <i id="playIcon" class="fas fa-play"></i>
+                        <i id="pauseIcon" class="fas fa-pause hidden"></i>
+                    </button>
+                    
+                    <button id="forwardBtn" class="w-10 h-10 text-gray-600 hover:brand-color transition-colors" title="លោត ៣០វិនាទី">
+                        <i class="fas fa-redo text-lg"></i>
+                    </button>
+                </div>
+
+                <!-- Additional Controls -->
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center space-x-3">
+                        <button id="volumeBtn" class="text-gray-600 hover:brand-color transition-colors">
+                            <i class="fas fa-volume-up text-sm"></i>
+                        </button>
+                        <input type="range" id="volumeControl" 
+                            class="w-16 h-1 bg-gray-200 rounded-lg appearance-none cursor-pointer"
+                            min="0" max="100" value="100">
+                    </div>
+                    
+                    <div class="flex items-center space-x-3">
+                        <button id="qualityBtn" class="text-gray-600 hover:brand-color transition-colors text-xs">
+                            <i class="fas fa-cog"></i>
+                        </button>
+                        <button id="speedBtn" class="text-gray-600 hover:brand-color transition-colors text-sm font-medium px-2 py-1 bg-gray-100 rounded">
+                            1.0x
+                        </button>
+                    </div>
+                    
+                    <button id="collapsePlayer" class="text-gray-600 hover:brand-color transition-colors">
+                        <i class="fas fa-chevron-down"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- JavaScript Files -->
     <script src="assets/js/main.js"></script>
     <script src="assets/js/categoriesScroll.js"></script>
     <script src="assets/js/homeArticles.js"></script>
-    <!-- Remove duplicate audioPlayer.js if it's here -->
-    <!-- JavaScript -->
-       <script>
+    <script src="assets/js/audioPlayer.js"></script>
+
+    <!-- Main JavaScript -->
+    <script>
         // Mobile Menu Functions - FIXED
         function toggleMobileMenu() {
             const mobileMenu = document.getElementById('mobileMenu');
@@ -671,6 +1066,74 @@
                 }
             }
         });
+
+        // Device detection for audio optimization
+        window.deviceInfo = {
+            isMobile: /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent),
+            isSlowConnection: navigator.connection ? 
+                (navigator.connection.effectiveType === 'slow-2g' || 
+                 navigator.connection.effectiveType === '2g' ||
+                 navigator.connection.saveData === true) : false,
+            supportsMP3: (new Audio()).canPlayType('audio/mpeg') !== '',
+            supportsOGG: (new Audio()).canPlayType('audio/ogg') !== '',
+            userAgent: navigator.userAgent
+        };
+        
+        console.log('📱 Device Info:', window.deviceInfo);
+        
+        // Set audio quality based on device
+        window.audioQuality = window.deviceInfo.isMobile ? 'medium' : 'high';
+        if (window.deviceInfo.isSlowConnection) {
+            window.audioQuality = 'low';
+        }
+        
+        // Optimize Cloudinary URLs based on device
+        window.optimizeAudioUrl = function(url) {
+            if (!url || !url.includes('cloudinary.com')) return url;
+            
+            const quality = window.audioQuality;
+            const qualityMap = {
+                'low': 'q_auto:low',
+                'medium': 'q_auto:good',
+                'high': 'q_auto:best'
+            };
+            
+            if (url.includes('/upload/')) {
+                const parts = url.split('/upload/');
+                return `${parts[0]}/upload/${qualityMap[quality]},f_auto,fl_streaming_attachment/${parts[1]}`;
+            }
+            
+            return url;
+        };
+
+        // Handle page visibility changes
+        document.addEventListener('visibilitychange', () => {
+            if (window.audioPlayer && document.hidden && window.audioPlayer.isPlaying) {
+                window.audioPlayer.pause();
+            }
+        });
+
+        // Handle beforeunload to save state
+        window.addEventListener('beforeunload', () => {
+            if (window.audioPlayer) {
+                localStorage.setItem('lastPlaybackTime', window.audioPlayer.currentTime);
+                localStorage.setItem('lastArticleId', window.audioPlayer.currentArticle?._id || '');
+            }
+        });
+
+        // Global helper to play article from anywhere
+        window.playArticle = function(articleId) {
+            if (window.audioArticlesApp && typeof window.audioArticlesApp.playArticle === 'function') {
+                window.audioArticlesApp.playArticle(articleId);
+            }
+        };
+
+        // Global helper to load article
+        window.loadArticleToPlayer = function(article) {
+            if (window.audioPlayer && typeof window.audioPlayer.loadArticle === 'function') {
+                window.audioPlayer.loadArticle(article);
+            }
+        };
     </script>
 </body>
 </html>
