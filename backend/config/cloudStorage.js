@@ -23,10 +23,10 @@ const uploadToCloudinary = (buffer, folder, resourceType = 'auto') => {
     
     // Add audio-specific optimizations
     if (resourceType === 'video' || resourceType === 'auto') {
-      options.quality = 'auto:good'; // Auto quality for audio
-      options.audio_codec = 'mp3'; // Force MP3 for compatibility
-      options.audio_bitrate = '128k'; // Good quality bitrate
-      options.streaming_profile = 'hd'; // Enable streaming
+      options.quality = 'auto:good';
+      options.audio_codec = 'mp3';
+      options.audio_bitrate = '128k';
+      options.streaming_profile = 'hd';
     }
     
     // For images
@@ -57,15 +57,31 @@ const uploadToCloudinary = (buffer, folder, resourceType = 'auto') => {
   });
 };
 
+// Delete from Cloudinary
+const deleteFromCloudinary = async (publicId, resourceType = 'image') => {
+  return new Promise((resolve, reject) => {
+    cloudinary.uploader.destroy(publicId, { 
+      resource_type: resourceType,
+      invalidate: true
+    }, (error, result) => {
+      if (error) {
+        console.error('❌ Cloudinary delete error:', error);
+        reject(error);
+      } else {
+        console.log('✅ Cloudinary delete successful:', result);
+        resolve(result);
+      }
+    });
+  });
+};
+
 // Optimize Cloudinary audio URL for streaming
 const optimizeAudioUrl = (url) => {
   if (!url.includes('cloudinary.com')) return url;
   
-  // Add streaming optimizations
   if (url.includes('/upload/')) {
     const parts = url.split('/upload/');
     if (parts.length === 2) {
-      // Add audio optimizations
       const transformations = 'q_auto:good,f_auto,fl_streaming_attachment,ac_mp3,ab_128k';
       return `${parts[0]}/upload/${transformations}/${parts[1]}`;
     }
@@ -77,5 +93,6 @@ const optimizeAudioUrl = (url) => {
 module.exports = {
   cloudinary,
   uploadToCloudinary,
+  deleteFromCloudinary,  // This was missing!
   optimizeAudioUrl
 };
