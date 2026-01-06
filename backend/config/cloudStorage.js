@@ -21,22 +21,22 @@ const uploadToCloudinary = (buffer, folder, resourceType = 'auto') => {
       timeout: 60000 // 60 seconds timeout
     };
     
-    // Audio compression settings
-    if (resourceType === 'video' || resourceType === 'auto') {
-      // ✅ FIXED: Only audio compression parameters, NO streaming_profile mixed in
-      Object.assign(options, {
+// In the audio compression section:
+if (resourceType === 'video' || resourceType === 'auto') {
+    // ✅ Use MP3 for universal browser support
+    Object.assign(options, {
         quality: 'auto:low',
-        audio_codec: 'aac',
-        audio_bitrate: '32k',
-        audio_sample_rate: 22050,
+        audio_codec: 'mp3',  // Changed from 'aac' to 'mp3'
+        audio_bitrate: '64k',
+        audio_sample_rate: 44100,
         audio_channels: 1,
-        format: 'm4a'
-      });
-      
-      console.log('🎵 AUDIO COMPRESSION SETTINGS:');
-      console.log('   32kbps AAC Mono');
-      console.log('   ~0.24 MB per 10 minutes');
-    }
+        format: 'mp3'  // Changed from 'm4a' to 'mp3'
+    });
+    
+    console.log('🎵 AUDIO COMPRESSION SETTINGS:');
+    console.log('   64kbps MP3 Mono');
+    console.log('   ~0.48 MB per 10 minutes');
+}
     
     // For images
     if (resourceType === 'image') {

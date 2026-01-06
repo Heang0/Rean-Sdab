@@ -16,42 +16,11 @@ class AudioPlayer {
         this.retryCount = 0;
         this.maxRetries = 3;
         
-        this.compressionLevel = 'medium';
-        this.originalFileSize = 0;
-        this.compressedFileSize = 0;
-        
         console.log('🎵 AudioPlayer initialized');
         this.checkBrowserSupport();
         this.init();
     }
     
-    // Add this method to calculate savings
-    calculateSavings(originalUrl, compressedUrl) {
-        const defaultOriginalSize = 9.6;
-        const compressedSize = 2.4;
-        
-        if (this.currentArticle && this.currentArticle.duration) {
-            const durationMinutes = this.currentArticle.duration / 60;
-            const estimatedOriginal = (durationMinutes * 0.96).toFixed(1);
-            const estimatedCompressed = (durationMinutes * 0.24).toFixed(1);
-            const savings = (((estimatedOriginal - estimatedCompressed) / estimatedOriginal) * 100).toFixed(0);
-            
-            console.log('💰 SIZE ESTIMATE:');
-            console.log(`   Duration: ${durationMinutes.toFixed(1)} minutes`);
-            console.log(`   Original: ~${estimatedOriginal} MB`);
-            console.log(`   Compressed: ~${estimatedCompressed} MB`);
-            console.log(`   Savings: ${savings}% smaller`);
-            
-            return {
-                originalMB: estimatedOriginal,
-                compressedMB: estimatedCompressed,
-                savingsPercent: savings
-            };
-        }
-        
-        return null;
-    } // <-- Closing brace for calculateSavings method
-
     // Check browser and device capabilities
     checkBrowserSupport() {
         this.deviceInfo = {
@@ -62,19 +31,10 @@ class AudioPlayer {
                 (navigator.connection.effectiveType === 'slow-2g' || 
                  navigator.connection.effectiveType === '2g' ||
                  navigator.connection.saveData === true) : false,
-            supportsMP3: !!this.audio.canPlayType('audio/mpeg').replace('no', ''),
-            supportsOGG: !!this.audio.canPlayType('audio/ogg; codecs="vorbis"').replace('no', ''),
-            supportsWAV: !!this.audio.canPlayType('audio/wav').replace('no', ''),
-            supportsM4A: !!this.audio.canPlayType('audio/mp4').replace('no', ''),
-            supportsWebM: !!this.audio.canPlayType('audio/webm; codecs="opus"').replace('no', '')
+            supportsMP3: !!this.audio.canPlayType('audio/mpeg').replace('no', '')
         };
         
         console.log('📱 Device Info:', this.deviceInfo);
-        
-        this.audioQuality = this.deviceInfo.isMobile ? 'medium' : 'high';
-        if (this.deviceInfo.isSlowConnection) {
-            this.audioQuality = 'low';
-        }
         
         if (this.deviceInfo.isIOS) {
             this.audio.preload = 'none';
@@ -125,32 +85,27 @@ class AudioPlayer {
             this.updateDurationDisplay();
             this.updateTimeDisplay();
             this.updateProgressBar();
-            
-            if (!this.deviceInfo.isIOS) {
-                this.preloadAudioChunk(0, this.bufferSize);
-            }
         });
 
         this.audio.addEventListener('timeupdate', () => {
             this.currentTime = this.audio.currentTime;
             this.updateProgressBar();
             this.updateTimeDisplay();
-            this.smartPreloading();
         });
 
-            this.audio.addEventListener('ended', () => {
-    console.log('⏹️ Audio ended');
-    this.isPlaying = false;
-    this.hideLoading();  // ADD THIS LINE
-    this.updatePlayButton();
-    this.retryCount = 0;
-});
+        this.audio.addEventListener('ended', () => {
+            console.log('⏹️ Audio ended');
+            this.isPlaying = false;
+            this.hideLoading();
+            this.updatePlayButton();
+            this.retryCount = 0;
+        });
 
         this.audio.addEventListener('canplay', () => {
-    console.log('▶️ Audio can play');
-    this.hideLoading();
-    this.isBuffering = false;  // ADD THIS LINE
-});
+            console.log('▶️ Audio can play');
+            this.hideLoading();
+            this.isBuffering = false;
+        });
 
         this.audio.addEventListener('canplaythrough', () => {
             console.log('✅ Entire audio can play through');
@@ -164,18 +119,17 @@ class AudioPlayer {
         });
 
         this.audio.addEventListener('playing', () => {
-    console.log('🎵 Audio playing');
-    this.isBuffering = false;
-    this.hideLoading();
-});
+            console.log('🎵 Audio playing');
+            this.isBuffering = false;
+            this.hideLoading();
+        });
 
-// ===== ADD THIS NEW EVENT LISTENER =====
-this.audio.addEventListener('pause', () => {
-    console.log('⏸️ Audio paused');
-    this.hideLoading();  // CRITICAL: Hide loading when paused
-    this.isPlaying = false;
-    this.updatePlayButton();
-});
+        this.audio.addEventListener('pause', () => {
+            console.log('⏸️ Audio paused');
+            this.hideLoading();
+            this.isPlaying = false;
+            this.updatePlayButton();
+        });
 
         this.audio.addEventListener('error', (e) => {
             console.error('❌ Audio error:', e);
@@ -195,12 +149,9 @@ this.audio.addEventListener('pause', () => {
                         this.retryWithFallback();
                         break;
                     case error.MEDIA_ERR_DECODE:
-                        console.error('🔧 Decode error - trying different format');
-                        this.tryAlternativeFormat();
-                        break;
                     case error.MEDIA_ERR_SRC_NOT_SUPPORTED:
-                        console.error('🚫 Format not supported - using fallback');
-                        this.useCompressedFallback();
+                        console.error('🔧 Format error - trying clean URL');
+                        this.useCleanCloudinaryUrl();
                         break;
                 }
             }
@@ -301,14 +252,6 @@ this.audio.addEventListener('pause', () => {
             });
         }
 
-        const qualityBtn = document.getElementById('qualityBtn');
-        if (qualityBtn) {
-            qualityBtn.onclick = (e) => {
-                e.stopPropagation();
-                this.toggleQualitySelector();
-            };
-        }
-
         const autoPlayToggle = document.getElementById('autoPlayToggle');
         if (autoPlayToggle) {
             autoPlayToggle.checked = localStorage.getItem('autoPlay') === 'true';
@@ -333,36 +276,45 @@ this.audio.addEventListener('pause', () => {
         this.updateVolumeIcon();
     }
 
-    // Add missing methods:
-    smartPreloading() {
-        if (this.deviceInfo.isSlowConnection || this.deviceInfo.isMobile) return;
+    // CLOUDINARY URL HANDLING - FIXED
+    getCleanCloudinaryUrl(url) {
+        if (!url || typeof url !== 'string') return url;
         
-        const currentTime = this.audio.currentTime;
-        const bufferAhead = 30;
+        console.log('🔗 Original URL:', url);
         
-        if (this.audio.buffered.length > 0) {
-            const bufferedEnd = this.audio.buffered.end(this.audio.buffered.length - 1);
-            
-            if (bufferedEnd - currentTime < bufferAhead && bufferedEnd < this.duration) {
-                const startTime = bufferedEnd;
-                const endTime = Math.min(bufferedEnd + bufferAhead, this.duration);
+        if (!url.includes('cloudinary.com')) return url;
+        
+        // Extract clean URL: https://res.cloudinary.com/dpaq3ova2/video/upload/v1767691648/audio/nbz21wbvppzknuef0yew.mp3
+        // Remove all transformation parameters
+        
+        // Method 1: Extract version and path
+        const match = url.match(/(https:\/\/res\.cloudinary\.com\/[^\/]+\/video\/upload\/)(v\d+\/.+\.mp3)/i);
+        if (match) {
+            const cleanUrl = match[1] + match[2];
+            console.log('🧹 Clean Cloudinary URL:', cleanUrl);
+            return cleanUrl;
+        }
+        
+        // Method 2: Remove transformation parameters
+        if (url.includes('/upload/')) {
+            const parts = url.split('/upload/');
+            if (parts.length === 2) {
+                const afterUpload = parts[1];
+                const segments = afterUpload.split('/');
                 
-                if (!this.isChunkPreloaded(startTime, endTime)) {
-                    console.log(`📥 Preloading chunk: ${startTime}s to ${endTime}s`);
-                    this.preloadedChunks.push({start: startTime, end: endTime});
+                // Find version segment (starts with v)
+                const versionIndex = segments.findIndex(s => s.startsWith('v'));
+                if (versionIndex !== -1) {
+                    const cleanPath = segments.slice(versionIndex).join('/');
+                    const cleanUrl = `${parts[0]}/upload/${cleanPath}`;
+                    console.log('🧹 Clean URL (method 2):', cleanUrl);
+                    return cleanUrl;
                 }
             }
         }
-    }
-
-    isChunkPreloaded(start, end) {
-        return this.preloadedChunks.some(chunk => 
-            chunk.start <= start && chunk.end >= end
-        );
-    }
-
-    preloadAudioChunk(startTime, duration) {
-        console.log(`📥 Preloading audio from ${startTime}s for ${duration}s`);
+        
+        console.log('⚠️ Could not clean URL, using original');
+        return url;
     }
 
     retryWithFallback() {
@@ -377,56 +329,36 @@ this.audio.addEventListener('pause', () => {
         
         setTimeout(() => {
             if (this.currentArticle) {
-                const fallbackUrl = this.getFallbackUrl(this.currentArticle.audioUrl);
-                this.audio.src = fallbackUrl;
+                const cleanUrl = this.getCleanCloudinaryUrl(this.currentArticle.audioUrl);
+                this.audio.src = cleanUrl;
                 this.audio.load();
             }
         }, 1000 * this.retryCount);
     }
 
-    getFallbackUrl(url) {
-        if (url.includes('/upload/q_')) {
-            return url.replace('/upload/q_auto:best', '/upload/')
-                     .replace('/upload/q_auto:good', '/upload/')
-                     .replace('/upload/q_auto:low', '/upload/');
-        }
-        return url;
-    }
-
-    tryAlternativeFormat() {
-        console.log('🔄 Trying alternative audio format');
-        if (this.currentArticle) {
-            this.audio.src = this.currentArticle.audioUrl;
-            this.audio.load();
-        }
-    }
-
-    useCompressedFallback() {
-        console.log('🔧 Using compressed fallback format');
+    useCleanCloudinaryUrl() {
+        console.log('🔄 Switching to clean Cloudinary URL');
         if (this.currentArticle && this.currentArticle.audioUrl) {
-            let fallbackUrl = this.currentArticle.audioUrl;
+            const cleanUrl = this.getCleanCloudinaryUrl(this.currentArticle.audioUrl);
             
-            if (!fallbackUrl.includes('.mp3') && fallbackUrl.includes('cloudinary.com')) {
-                if (fallbackUrl.includes('/upload/')) {
-                    const parts = fallbackUrl.split('/upload/');
-                    fallbackUrl = `${parts[0]}/upload/f_mp3/${parts[1]}`;
-                }
-            }
+            const currentTime = this.audio.currentTime;
+            const wasPlaying = this.isPlaying;
             
-            this.audio.src = fallbackUrl;
+            console.log('🎵 New clean URL:', cleanUrl);
+            this.audio.src = cleanUrl;
+            this.audio.currentTime = currentTime;
             this.audio.load();
+            
+            if (wasPlaying) {
+                setTimeout(() => {
+                    this.audio.play().catch(e => {
+                        console.log('⚠️ Auto-play prevented after URL switch');
+                    });
+                }, 1000);
+            }
         }
     }
 
-    getLowQualityUrl(url) {
-        if (url.includes('cloudinary.com') && url.includes('/upload/')) {
-            const parts = url.split('/upload/');
-            return `${parts[0]}/upload/q_auto:low,f_auto,fl_streaming_attachment/${parts[1]}`;
-        }
-        return url;
-    }
-
-    // Compression methods
     configureAudioForFastLoading() {
         if (this.deviceInfo.isIOS) {
             this.audio.preload = 'none';
@@ -439,102 +371,6 @@ this.audio.addEventListener('pause', () => {
         this.audio.setAttribute('playsinline', '');
         this.audio.setAttribute('webkit-playsinline', '');
         this.audio.controls = false;
-    }
-
-    optimizeAudioUrl(url) {
-        if (!url || typeof url !== 'string') return url;
-        
-        console.log('🔗 Original URL:', url);
-        
-        if (url.includes('cloudinary.com') || url.includes('res.cloudinary.com')) {
-            if (url.includes('/upload/')) {
-                const parts = url.split('/upload/');
-                if (parts.length === 2) {
-                    let cleanUrl = url;
-                    if (url.includes('/upload/q_') || url.includes('/upload/f_') || url.includes('/upload/ac_')) {
-                        const urlParts = url.split('/upload/');
-                        const afterUpload = urlParts[1];
-                        const lastSlash = afterUpload.lastIndexOf('/');
-                        const publicId = afterUpload.substring(lastSlash + 1);
-                        
-                        cleanUrl = `${urlParts[0]}/upload/${publicId}`;
-                        console.log('🧹 Cleaned URL for transformation:', cleanUrl);
-                        parts[0] = urlParts[0];
-                        parts[1] = publicId;
-                    }
-                    
-                    const compressionParams = [
-                        'q_auto:low',
-                        'ac_aac',
-                        'ab_32k',
-                        'ar_22050',
-                        'ac_1',
-                        'f_m4a',
-                        'fl_streaming_attachment',
-                        'fl_progressive',
-                        'dn_50'
-                    ].join(',');
-                    
-                    console.log('🎵 APPLYING AUDIO COMPRESSION:');
-                    console.log('   Bitrate: 32kbps (vs 128kbps = 75% smaller)');
-                    console.log('   Format: AAC/M4A (better compression than MP3)');
-                    console.log('   Channels: Mono (50% smaller than stereo)');
-                    console.log('   Sample rate: 22.05kHz (50% smaller than 44.1kHz)');
-                    console.log('   Expected size: 2.4 MB per 10 minutes');
-                    
-                    const compressedUrl = `${parts[0]}/upload/${compressionParams}/${parts[1]}`;
-                    console.log('🔗 Compressed URL:', compressedUrl);
-                    return compressedUrl;
-                }
-            }
-        }
-        
-        console.log('⚠️ Not a Cloudinary URL, returning original');
-        return url;
-    }
-
-    getDeviceOptimizedAudioUrl(url) {
-        if (!url || typeof url !== 'string') return url;
-        
-        if (!url.includes('cloudinary.com')) return url;
-        
-        let bitrate = '32k';
-        let quality = 'low';
-        let sampleRate = '22050';
-        
-        if (this.deviceInfo.isSlowConnection) {
-            bitrate = '24k';
-            quality = 'low';
-            sampleRate = '16000';
-            console.log('🐌 Slow connection: Using 24kbps extreme compression');
-        } else if (this.deviceInfo.isMobile) {
-            bitrate = '32k';
-            quality = 'low';
-            console.log('📱 Mobile: Using 32kbps compression');
-        } else {
-            bitrate = '48k';
-            quality = 'good';
-            console.log('💻 Desktop: Using 48kbps good quality');
-        }
-        
-        if (url.includes('/upload/')) {
-            const parts = url.split('/upload/');
-            if (parts.length === 2) {
-                const compressionParams = [
-                    `q_auto:${quality}`,
-                    'ac_aac',
-                    `ab_${bitrate}`,
-                    `ar_${sampleRate}`,
-                    'ac_1',
-                    'f_m4a',
-                    'fl_streaming_attachment'
-                ].join(',');
-                
-                return `${parts[0]}/upload/${compressionParams}/${parts[1]}`;
-            }
-        }
-        
-        return url;
     }
 
     loadArticle(article) {
@@ -571,20 +407,21 @@ this.audio.addEventListener('pause', () => {
             this.updateTimeDisplay();
             this.updateProgressBar();
             
-            const optimizedUrl = this.getDeviceOptimizedAudioUrl(article.audioUrl);
-            console.log('🔗 Device-optimized URL:', optimizedUrl);
+            // USE CLEAN CLOUDINARY URL
+            const cleanUrl = this.getCleanCloudinaryUrl(article.audioUrl);
+            console.log('🔗 Final audio URL:', cleanUrl);
             
             this.audio.src = '';
             this.audio = new Audio();
             
             this.configureAudioForFastLoading();
             
-            if (optimizedUrl.includes('cloudinary.com') || optimizedUrl.includes('res.cloudinary.com')) {
+            if (cleanUrl.includes('cloudinary.com')) {
                 this.audio.crossOrigin = 'anonymous';
                 console.log('☁️ Cloudinary URL detected, setting crossOrigin');
             }
             
-            this.audio.src = optimizedUrl;
+            this.audio.src = cleanUrl;
             this.audio.volume = this.volume;
             this.audio.playbackRate = this.playbackRate;
             
@@ -599,58 +436,16 @@ this.audio.addEventListener('pause', () => {
             
             this.loadTimeout = setTimeout(() => {
                 if (this.isBuffering) {
-                    console.log('⚠️ Slow connection detected, enabling extreme compression');
-                    this.enableLowQualityMode();
+                    console.log('⚠️ Slow loading, trying alternative...');
+                    this.useCleanCloudinaryUrl();
                 }
-            }, 3000);
+            }, 5000);
             
             console.log('✅ Audio source set, waiting for metadata...');
             
         } catch (error) {
             console.error('❌ Error loading audio:', error);
             this.showError('មិនអាចផ្ទុកអូឌីយ៉ូ');
-        }
-    }
-
-    enableLowQualityMode() {
-        if (!this.currentArticle || this.hasFallback) return;
-        
-        console.log('🔽 Enabling EXTREME compression mode (24kbps)');
-        
-        const currentUrl = this.audio.src;
-        
-        if (currentUrl.includes('cloudinary.com') && currentUrl.includes('/upload/')) {
-            const parts = currentUrl.split('/upload/');
-            if (parts.length === 2) {
-                const extremeCompression = [
-                    'q_auto:low',
-                    'ac_aac',
-                    'ab_24k',
-                    'ar_16000',
-                    'ac_1',
-                    'f_m4a',
-                    'fl_streaming_attachment'
-                ].join(',');
-                
-                const extremeUrl = `${parts[0]}/upload/${extremeCompression}/${parts[1]}`;
-                console.log('🔽 Extreme compression URL:', extremeUrl);
-                
-                const currentTime = this.audio.currentTime;
-                const wasPlaying = this.isPlaying;
-                
-                this.audio.src = extremeUrl;
-                this.audio.currentTime = currentTime;
-                this.audio.load();
-                this.hasFallback = true;
-                
-                if (wasPlaying) {
-                    setTimeout(() => {
-                        this.play().catch(e => {
-                            console.log('⚠️ Auto-play after compression switch prevented');
-                        });
-                    }, 500);
-                }
-            }
         }
     }
 
@@ -676,16 +471,22 @@ this.audio.addEventListener('pause', () => {
             if (this.deviceInfo.isIOS && error.name === 'NotAllowedError') {
                 this.showIOSPlaybackHint();
             }
+            
+            // Try clean URL if format error
+            if (error.message.includes('format') || error.message.includes('not supported')) {
+                console.log('🔄 Format error, trying clean URL...');
+                this.useCleanCloudinaryUrl();
+            }
         }
     }
 
-pause() {
-    console.log('⏸️ Pausing audio');
-    this.audio.pause();
-    this.isPlaying = false;
-    this.hideLoading();  // ADD THIS LINE
-    this.updatePlayButton();
-}
+    pause() {
+        console.log('⏸️ Pausing audio');
+        this.audio.pause();
+        this.isPlaying = false;
+        this.hideLoading();
+        this.updatePlayButton();
+    }
 
     togglePlay() {
         console.log('🔄 Toggle play, current state:', this.isPlaying);
@@ -737,41 +538,6 @@ pause() {
         }
     }
 
-    toggleQualitySelector() {
-        const selector = document.getElementById('qualitySelector');
-        if (selector) {
-            selector.classList.toggle('active');
-        }
-    }
-
-    setQuality(quality) {
-        this.audioQuality = quality;
-        console.log('🎚️ Setting audio quality to:', quality);
-        
-        if (this.currentArticle && this.isPlaying) {
-            const newUrl = this.optimizeAudioUrl(this.currentArticle.audioUrl);
-            if (newUrl !== this.audio.src) {
-                const wasPlaying = this.isPlaying;
-                const currentTime = this.audio.currentTime;
-                
-                this.audio.src = newUrl;
-                this.audio.currentTime = currentTime;
-                this.audio.load();
-                
-                if (wasPlaying) {
-                    this.audio.play().catch(console.error);
-                }
-            }
-        }
-        
-        document.querySelectorAll('.quality-option').forEach(option => {
-            option.classList.remove('active');
-            if (option.dataset.quality === quality) {
-                option.classList.add('active');
-            }
-        });
-    }
-
     updatePlayerInfo() {
         if (!this.currentArticle) return;
 
@@ -790,7 +556,7 @@ pause() {
             if (id.includes('Thumbnail')) {
                 element.src = content;
                 element.onerror = () => {
-                    element.src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDgiIGhlaWdodD0iNDgiIHZpZXdCb3g9IjAgMCA0OCA0OCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHJlY3Qgd2lkdGg9IjQ4IiBoZWlnaHQ9IjQ4IiBmaWxsPSIjRjNGNEY2Ii8+CjxwYXRoIGQ9Ik0yNCAzNkMzMC42Mjc0IDM2IDM2IDMwLjYyNzQgMzYgMjRDMzYgMTcuMzcyNiAzMC42Mjc0IDEyIDI0IDEyQzE3LjM3MjYgMTIgMTIgMTcuMzcyNiAxMiAyNEMxMiAzMC42Mjc0IDE3LjM7Niczq9o0IDM2IDI0IDM2WiIgZmlsbD0iI0RDMjYyNiIvPgo8cGF0aCBkPSJNMjAgMTlWMjlMMjggMjRMMjAgMTlaIiBmaWxsPSJ3aGl0ZSIvPgo8L3N2Zz4K=';
+                    element.src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDgiIGhlaWdodD0iNDgiIHZpZXdCb3g9IjAgMCA0OCA0OCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHJlY3Qgd2lkdGg9IjQ4IiBoZWlnaHQ9IjQ4IiBmaWxsPSIjRjNGNEY2Ii8+CjxwYXRoIGQ9Ik0yNCAzNkMzMC42Mjc0IDM2IDM2IDMwLjYyNzQgMzYgMjRDMzYgMTcuMzcyNiAzMC42Mjc0IDEyIDI0IDEyQzE3LjM3MjYgMTIgMTIgMTcu372NyAxMiAyNEMxMiAzMC42Mjc0IDE3LjM3MjYgMzYgMjQgMzZaIiBmaWxsPSIjRERCMDAwIi8+CjxwYXRoIGQ9Ik0yMCAxOVYyOUwyOCAyNEwyMCAxOVoiIGZpbGw9IndoaXRlIi8+Cjwvc3ZnPg==';
                 };
             } else {
                 element.textContent = content || '';
@@ -823,30 +589,42 @@ pause() {
         if (fullPlayer) fullPlayer.classList.add('translate-y-full');
         if (miniPlayer) miniPlayer.style.opacity = '1';
     }
-updatePlayButton() {
-    // Big player icons
-    const playIcon = document.getElementById('playIcon');
-    const pauseIcon = document.getElementById('pauseIcon');
-    
-    if (playIcon && pauseIcon) {
-        if (this.isPlaying) {
-            playIcon.classList.add('hidden');
-            pauseIcon.classList.remove('hidden');
-        } else {
-            playIcon.classList.remove('hidden');
-            pauseIcon.classList.add('hidden');
-        }
-    }
 
-    // Mini player button
-    const miniPlayBtn = document.getElementById('miniPlayBtn');
-    if (miniPlayBtn) {
-        const icon = miniPlayBtn.querySelector('i');
-        if (icon) {
-            icon.className = this.isPlaying ? 'fas fa-pause text-xs' : 'fas fa-play text-xs';
+    updatePlayButton() {
+        // Big player icons
+        const playIcon = document.getElementById('playIcon');
+        const pauseIcon = document.getElementById('pauseIcon');
+        
+        if (playIcon && pauseIcon) {
+            if (this.isPlaying) {
+                playIcon.classList.add('hidden');
+                pauseIcon.classList.remove('hidden');
+            } else {
+                playIcon.classList.remove('hidden');
+                pauseIcon.classList.add('hidden');
+            }
+        }
+
+        // Mini player button
+        const miniPlayBtn = document.getElementById('miniPlayBtn');
+        if (miniPlayBtn) {
+            const icon = miniPlayBtn.querySelector('i');
+            if (icon) {
+                icon.className = this.isPlaying ? 'fas fa-pause text-xs' : 'fas fa-play text-xs';
+            }
+        }
+        
+        // Main play button
+        const playPauseBtn = document.getElementById('playPauseBtn');
+        if (playPauseBtn) {
+            const icon = playPauseBtn.querySelector('i');
+            if (icon) {
+                if (!icon.classList.contains('fa-spinner')) {
+                    icon.className = this.isPlaying ? 'fas fa-pause' : 'fas fa-play';
+                }
+            }
         }
     }
-}
 
     updateProgressBar() {
         const progress = this.duration > 0 ? (this.currentTime / this.duration) * 100 : 0;
@@ -908,87 +686,80 @@ updatePlayButton() {
         }
     }
 
-        showLoading() {
-    // Show loading when buffering OR when trying to play but audio hasn't started
-    if (!this.isBuffering && this.isPlaying) {
-        // If we're playing but not buffering, don't show loading
-        return;
-    }
-    
-    const playBtn = document.getElementById('playPauseBtn');
-    const miniPlayBtn = document.getElementById('miniPlayBtn');
-    
-    if (playBtn) {
-        const icon = playBtn.querySelector('i');
-        if (icon && !this.isPlaying) {
-            icon.className = 'fas fa-spinner fa-spin';
+    showLoading() {
+        if (!this.isBuffering && this.isPlaying) {
+            return;
         }
-    }
-    
-    if (miniPlayBtn) {
-        const icon = miniPlayBtn.querySelector('i');
-        if (icon && !this.isPlaying) {
-            icon.className = 'fas fa-spinner fa-spin text-xs';
-        }
-    }
-    
-    const bufferingIndicator = document.getElementById('bufferingIndicator');
-    if (bufferingIndicator) {
-        bufferingIndicator.classList.add('active');
-    }
-}
-
-hideLoading() {
-    console.log('🔴 DEBUG: hideLoading called');
-    
-    // ===== FIX FOR BIG PLAYER =====
-    // Get the play/pause icons from big player
-    const playIcon = document.getElementById('playIcon');
-    const pauseIcon = document.getElementById('pauseIcon');
-    
-    if (playIcon && pauseIcon) {
-        // Remove spinner class from both
-        playIcon.className = 'fas fa-play';
-        pauseIcon.className = 'fas fa-pause';
         
-        // Show/hide based on playing state
-        if (this.isPlaying) {
-            playIcon.classList.add('hidden');
-            pauseIcon.classList.remove('hidden');
-        } else {
-            playIcon.classList.remove('hidden');
-            pauseIcon.classList.add('hidden');
+        const playBtn = document.getElementById('playPauseBtn');
+        const miniPlayBtn = document.getElementById('miniPlayBtn');
+        
+        if (playBtn) {
+            const icon = playBtn.querySelector('i');
+            if (icon && !this.isPlaying) {
+                icon.className = 'fas fa-spinner fa-spin';
+            }
+        }
+        
+        if (miniPlayBtn) {
+            const icon = miniPlayBtn.querySelector('i');
+            if (icon && !this.isPlaying) {
+                icon.className = 'fas fa-spinner fa-spin text-xs';
+            }
+        }
+        
+        const bufferingIndicator = document.getElementById('bufferingIndicator');
+        if (bufferingIndicator) {
+            bufferingIndicator.classList.add('active');
         }
     }
-    
-    // ===== FIX FOR MINI PLAYER =====
-    const miniPlayBtn = document.getElementById('miniPlayBtn');
-    if (miniPlayBtn) {
-        const miniIcon = miniPlayBtn.querySelector('i');
-        if (miniIcon) {
-            // Remove spinner class
-            miniIcon.className = this.isPlaying ? 'fas fa-pause text-xs' : 'fas fa-play text-xs';
+
+    hideLoading() {
+        console.log('🔴 DEBUG: hideLoading called');
+        
+        // Fix for big player
+        const playIcon = document.getElementById('playIcon');
+        const pauseIcon = document.getElementById('pauseIcon');
+        
+        if (playIcon && pauseIcon) {
+            playIcon.className = 'fas fa-play';
+            pauseIcon.className = 'fas fa-pause';
+            
+            if (this.isPlaying) {
+                playIcon.classList.add('hidden');
+                pauseIcon.classList.remove('hidden');
+            } else {
+                playIcon.classList.remove('hidden');
+                pauseIcon.classList.add('hidden');
+            }
         }
-    }
-    
-    // ===== FIX FOR BIG PLAY BUTTON (backward compatibility) =====
-    const playPauseBtn = document.getElementById('playPauseBtn');
-    if (playPauseBtn) {
-        const btnIcon = playPauseBtn.querySelector('i');
-        if (btnIcon && btnIcon.classList.contains('fa-spinner')) {
-            // If spinner is showing, update to correct icon
-            btnIcon.className = this.isPlaying ? 'fas fa-pause' : 'fas fa-play';
+        
+        // Fix for mini player
+        const miniPlayBtn = document.getElementById('miniPlayBtn');
+        if (miniPlayBtn) {
+            const miniIcon = miniPlayBtn.querySelector('i');
+            if (miniIcon) {
+                miniIcon.className = this.isPlaying ? 'fas fa-pause text-xs' : 'fas fa-play text-xs';
+            }
         }
+        
+        // Fix for big play button
+        const playPauseBtn = document.getElementById('playPauseBtn');
+        if (playPauseBtn) {
+            const btnIcon = playPauseBtn.querySelector('i');
+            if (btnIcon && btnIcon.classList.contains('fa-spinner')) {
+                btnIcon.className = this.isPlaying ? 'fas fa-pause' : 'fas fa-play';
+            }
+        }
+        
+        // Hide buffering indicator
+        const bufferingIndicator = document.getElementById('bufferingIndicator');
+        if (bufferingIndicator) {
+            bufferingIndicator.classList.remove('active');
+        }
+        
+        console.log('✅ Loading hidden for all players');
     }
-    
-    // Hide buffering indicator
-    const bufferingIndicator = document.getElementById('bufferingIndicator');
-    if (bufferingIndicator) {
-        bufferingIndicator.classList.remove('active');
-    }
-    
-    console.log('✅ Loading hidden for all players');
-}
 
     showError(message) {
         console.error('❌ Player Error:', message);
@@ -1082,25 +853,12 @@ hideLoading() {
         
         console.log('🧹 AudioPlayer destroyed');
     }
-} // <-- CRITICAL: This closes the AudioPlayer class
+}
 
 // Initialize audio player globally
 window.audioPlayer = new AudioPlayer();
 
-// Add global helper functions
-window.optimizeAudioForDevice = function(url) {
-    if (window.audioPlayer && window.audioPlayer.optimizeAudioUrl) {
-        return window.audioPlayer.optimizeAudioUrl(url);
-    }
-    return url;
-};
 
-// Handle page visibility changes
-document.addEventListener('visibilitychange', () => {
-    if (window.audioPlayer && document.hidden && window.audioPlayer.isPlaying) {
-        window.audioPlayer.pause();
-    }
-});
 
 // Handle beforeunload to save state
 window.addEventListener('beforeunload', () => {

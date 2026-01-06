@@ -1,10 +1,12 @@
 // Article page functionality
 class ArticlePage {
     constructor() {
-        this.apiBase = window.appConfig.apiBase;
-        this.currentArticleId = null;
-        this.init();
-    }
+    // FIX: Make sure apiBase includes /api
+    this.apiBase = window.appConfig?.apiBase || 'http://localhost:5000/api';
+    console.log('🔧 API Base URL:', this.apiBase);
+    this.currentArticleId = null;
+    this.init();
+}
 
     async init() {
         await this.loadArticle();
