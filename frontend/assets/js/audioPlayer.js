@@ -698,20 +698,24 @@ class AudioPlayer {
         if (miniPlayer) miniPlayer.style.opacity = '1';
     }
 
-    updatePlayButton() {
-        // Big player icons
-        const playIcon = document.getElementById('playIcon');
-        const pauseIcon = document.getElementById('pauseIcon');
-        
-        if (playIcon && pauseIcon) {
-            if (this.isPlaying) {
-                playIcon.classList.add('hidden');
-                pauseIcon.classList.remove('hidden');
-            } else {
-                playIcon.classList.remove('hidden');
-                pauseIcon.classList.add('hidden');
-            }
+updatePlayButton() {
+    // Big player icons
+    const playIcon = document.getElementById('playIcon');
+    const pauseIcon = document.getElementById('pauseIcon');
+    
+    if (playIcon && pauseIcon) {
+        if (this.isPlaying) {
+            playIcon.classList.add('hidden');
+            playIcon.style.display = 'none'; // Force hide
+            pauseIcon.classList.remove('hidden');
+            pauseIcon.style.display = 'block'; // Force show
+        } else {
+            playIcon.classList.remove('hidden');
+            playIcon.style.display = 'block'; // Force show
+            pauseIcon.classList.add('hidden');
+            pauseIcon.style.display = 'none'; // Force hide
         }
+    }
 
         // Mini player button
         const miniPlayBtn = document.getElementById('miniPlayBtn');

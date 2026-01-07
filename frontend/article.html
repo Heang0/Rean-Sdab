@@ -446,6 +446,44 @@ body {
     font-variant-numeric: lining-nums !important;
     font-feature-settings: "lnum" !important;
 }
+/* ===== FIX DUPLICATE PLAY/PAUSE ICONS ===== */
+#playPauseBtn {
+    position: relative;
+    overflow: hidden;
+}
+
+#playIcon, #pauseIcon {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+/* When hidden, truly hide it (not just opacity 0) */
+#playIcon.hidden, #pauseIcon.hidden {
+    opacity: 0 !important;
+    visibility: hidden !important;
+    transform: translate(-50%, -50%) scale(0.8);
+}
+
+/* When visible */
+#playIcon:not(.hidden), #pauseIcon:not(.hidden) {
+    opacity: 1 !important;
+    visibility: visible !important;
+    transform: translate(-50%, -50%) scale(1);
+}
+
+/* Ensure only one icon is visible at a time */
+#playPauseBtn i {
+    position: absolute;
+}
+
+/* Remove any duplicate positioning */
+#playPauseBtn .fas {
+    margin: 0 !important;
+    position: absolute;
+}
 </style>
 </head>
 <body class="bg-gray-50">
